@@ -1,3 +1,5 @@
+import copy
+
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
@@ -19,7 +21,19 @@ class UserRegForm(UserCreationForm):
 
 
 class UserAuthForm(AuthenticationForm):
-    username = forms.CharField(label='Username', widget=forms.TextInput(
-        attrs={'class': 'form-control', 'id': 'floatingInput', 'placeholder': 'username'}))
+    username = forms.CharField(label='Username or email', widget=forms.TextInput(
+        attrs={'class': 'form-control', 'id': 'floatingInput', 'placeholder': 'username or email'}))
     password = forms.CharField(label='Password', widget=forms.PasswordInput(
         attrs={'class': 'form-control', 'id': 'floatingPassword', 'placeholder': 'password'}))
+
+    def __init__(self, request=None, *args, **kwargs):
+        if kwargs.get('data') and '@' in  kwargs.get('data').get('username') :
+            self.kw = copy.deepcopy(kwargs)
+            try:
+                username = User.objects.get(email__iexact=kwargs['data']['username']).username
+                self.kw['data']['username'] = username
+            except User.DoesNotExist :
+                pass
+            super().__init__(request=None, *args, **self.kw)
+        else:
+            super().__init__(request=None, *args, **kwargs)

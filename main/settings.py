@@ -25,13 +25,13 @@ SECRET_KEY = 'django-insecure-1qq8t+lp2jypwk9p6b$8w=mh!zn!)9x&)i0@!lkrkhemcuzkfx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.13.248']
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'accounts.apps.AccountsConfig',
+    # 'accounts.apps.AccountsConfig',
     'almanac',
     'almanacAPI',
     'social_django',
@@ -139,8 +139,8 @@ SOCIAL_AUTH_JSONFIELD_ENABLED = True
 
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
-    # 'django.contrib.auth.backends.ModelBackend',
-    'accounts.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
+    # 'accounts.backends.EmailBackend',
 )
 
 LOGIN_REDIRECT_URL = '/'
@@ -149,4 +149,4 @@ LOGOUT_REDIRECT_URL = '/'
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '434945278572-fhg1j7nhmggrprdd71e2kvnno31421mt.apps.googleusercontent.com' # Google Consumer Key
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
 
-AUTH_USER_MODEL = 'accounts.CustomUser'
+# AUTH_USER_MODEL = 'accounts.CustomUser'
