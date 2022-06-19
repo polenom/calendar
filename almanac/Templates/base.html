@@ -6,6 +6,12 @@
 </head>
 <body>
     <p>{{request.user.username}}</p>
+    {% if request.user.is_authenticated %}
+    <p><a href="{% url 'logou' %}"> logout</a></p>
+    {% else %}
+    <p><a href="{% url 'reg' %}">Sing up</a></p>
+    <p><a href="{% url 'auth' %}">Sing in</a></p>
+    {% endif %}
     {% block content %}
     {% endblock %}
 </body>

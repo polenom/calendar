@@ -25,7 +25,11 @@ SECRET_KEY = 'django-insecure-1qq8t+lp2jypwk9p6b$8w=mh!zn!)9x&)i0@!lkrkhemcuzkfx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.13.248']
+ALLOWED_HOSTS = [
+    '192.168.13.248',
+    '127.0.0.1',
+    'localhost'
+                 ]
 
 
 # Application definition
@@ -62,7 +66,9 @@ ROOT_URLCONF = 'main.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR,'almanac/Templates')],
+        'DIRS': [os.path.join(BASE_DIR,'almanac/Templates'),
+                 os.path.join(BASE_DIR,'accounts/Templates')
+                 ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
