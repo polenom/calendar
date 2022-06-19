@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'almanac',
     'almanacAPI',
     'social_django',
-
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
