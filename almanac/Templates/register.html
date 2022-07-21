@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div >
+    <p id="message"></p>
+</div>
+<form action="" method="post">
+    {% csrf_token %}
+    {{form.as_p}}
+    <p id="password-mes"></p>
+</form>
+<button id="button-reg" disabled>registration</button>
+<script type="text/javascript" src="/static/scriptcreateuser.js">  </script>
+{% endblock %}

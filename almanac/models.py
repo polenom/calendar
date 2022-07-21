@@ -1,21 +1,22 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AbstractUser
 from django.db import models
 
-# Create your models here.
 
+# Create your models here.
+from django.contrib.auth import get_user_model
+
+from accounts.models import Country
+
+User = get_user_model()
 
 class City(models.Model):
     cityname = models.CharField(max_length=400)
 
-class Country(models.Model):
-    countryname = models.CharField(max_length=400)
+    def __str__(self):
+        return self.cityname
 
 
-class UserAdvance(models.Model):
-    user = models.OneToOneField(User,on_delete=models.CASCADE ,related_name='advance', primary_key=True)
-    city = models.ForeignKey(City,on_delete=models.SET_NULL, related_name='useradvance', null=True)
-    country = models.ForeignKey(Country, on_delete=models.SET_NULL, related_name='useradvance', null=True)
-    ipaddr = models.CharField(max_length=15)
+
 
 
 class MarketDay(models.Model):

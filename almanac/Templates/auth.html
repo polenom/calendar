@@ -1,9 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
+    <div id="message">
+
+    </div>
     <form action="" method="post">
         {% csrf_token %}
         {{form.as_p}}
-        <button type="submit">go</button>
     </form>
+    <button id="button-singin">go</button>
     <a href="{% url "social:begin" "google-oauth2" %}">Google+</a>
+    <script type="text/javascript" src="/static/scriptauth.js"> </script>
 {% endblock %}

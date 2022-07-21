@@ -1,8 +1,12 @@
 import copy
 
 from django import forms
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from accounts.models import CustomUser
+
+User = get_user_model()
 
 
 class UserRegForm(UserCreationForm):
@@ -11,9 +15,9 @@ class UserRegForm(UserCreationForm):
     email = forms.CharField(label='Email', required=False, widget=forms.EmailInput(
         attrs={'class': 'form-control', 'id': 'floatingEmail', 'placeholder': 'Email', 'required': 'True'}))
     password1 = forms.CharField(label='Password', required=False, widget=forms.PasswordInput(
-        attrs={'class': 'form-control', 'id': 'floatingPassword', 'placeholder': 'password', 'required': 'True'}))
+        attrs={'class': 'form-control', 'id': 'floatingPassword1', 'placeholder': 'password', 'required': 'True'}))
     password2 = forms.CharField(label='Confim password', required=False, widget=forms.PasswordInput(
-        attrs={'class': 'form-control', 'id': 'floatingPassword', 'placeholder': 'password', 'required': 'True'}))
+        attrs={'class': 'form-control', 'id': 'floatingPassword2', 'placeholder': 'password', 'required': 'True'}))
 
     class Meta:
         model = User

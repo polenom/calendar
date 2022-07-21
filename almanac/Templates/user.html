@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+    <form action="" method="post">
+        {% csrf_token%}
+        {{form.as_p}}
+        <button type="submit">gen</button>
+    </form>
+    {% for link in links %}
+    <form action="{% url 'link-delete' pk=link.pk %}" method="post">
+        {% csrf_token %}
+        <p> {{link.inlink}} = <a href="{% url 'redirectpage' link=link.onlink %}">http://localhost:8000/{{link.onlink}}</a>  </p>
+        <button type="submit">delete</button>
+    </form>
+    {% endfor %}
+{% endblock %}

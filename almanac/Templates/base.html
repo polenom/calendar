@@ -1,12 +1,21 @@
+{% load static %}
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Calendar</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Source+Serif+Pro:wght@600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <p>{{request.user.username}}</p>
     {% if request.user.is_authenticated %}
+     <p><a href="{% url 'start' slug=request.user.username %}">{{request.user.username}}</a></p>
     <p><a href="{% url 'logou' %}"> logout</a></p>
     {% else %}
     <p><a href="{% url 'reg' %}">Sing up</a></p>

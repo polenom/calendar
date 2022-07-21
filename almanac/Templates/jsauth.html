@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+        <p>test</p>
+        <form action="" id="reg" >
+            <p>
+                <label for="floatingInput">Username or email:</label>
+                <input type="text" name="username" class="form-control" id="floatingInput" placeholder="username or email" maxlength="150" required>
+            </p>
+            <p>
+                <label for="floatingPassword">Password:</label>
+                <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="password" required>
+            </p>
+            <button type="button" id="button-singin"> sing in</button>
+        </form>
+    <script type="text/javascript" src="/static/scriptauth.js"></script>
+{% endblock %}
