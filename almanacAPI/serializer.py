@@ -8,6 +8,28 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Toke
 from accounts.models import CustomUser
 
 
+class HolidayCountyrDateSerializer(serializers.ModelSerializer):
+    datebegin = serializers.DateTimeField(format="%m/%d/%H:%M")
+    dateend = serializers.DateTimeField(format="%m/%d/%H:%M")
+
+    class Meta:
+        model = HolidayCountry
+        fields= ['name', 'description', 'datebegin', 'dateend']
+
+
+class HolidayCountrySerializer(serializers.ModelSerializer):
+    holidaycountry = HolidayCountyrDateSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Country
+        fields = ['countryname', 'holidaycountry']
+
+
+
+
+
+
+
 class AdvanceUserSerializer(serializers.ModelSerializer):
     country = serializers.StringRelatedField()
     city = serializers.StringRelatedField()
@@ -44,6 +66,7 @@ class MyToken(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super(MyToken, cls).get_token(user)
         token['username'] = user.username
+        token['country'] = user.country.countryname
         return token
 
     def validate(self, attrs):
@@ -55,7 +78,12 @@ class MyToken(TokenObtainPairSerializer):
     
 
 class MyTokenRefresh(TokenRefreshSerializer):
-    pass
+    @classmethod
+    def get_token(cls, user):
+        token = super(MyToken, cls).get_token(user)
+        token['username'] = user.username
+        token['country'] = user.country.countryname
+        return token
 
 
 class CustomUserSerializer(serializers.ModelSerializer):

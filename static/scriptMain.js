@@ -54,7 +54,7 @@ for (let i = firstDayIndex-1; i > 0 ; i--) {
 
 
 for  (let i = 1; i <= daysFull;i++) {
-    if (i == day && new Date().getMonth() == date.getMonth()) {
+    if (i == day && new Date().getMonth() == date.getMonth() && new Date().getFullYear() == date.getFullYear()) {
         days += `<div class='today'>${i}</div>`;
         continue;
     }
@@ -74,5 +74,86 @@ document.querySelector('.prev').addEventListener('click', ()=>{
     renderCalendar()
 })
 
+function token() {
+    this.response = [];
+    this.time = 2;
+    this.checkAvailabilityToken = function() {
+        if (localStorage.getItem('keyrefresh')  && localStorage.getItem('keyaccess')) {
+            return true
+        }
+        return false
+    };
+    this.checkTokenAccessExp = function(token) {
+        if (!token) {
+            token = localStorage['keyrefresh']
+        }
+        const data= JSON.parse(atob(token.split('.')[1]))
+        console.log(data, data['exp'] , '====', (new Date().getTime()+3)/1000)
+        if (data['exp'] > (new Date().getTime()+3)/1000) {
+            return true;
+        }
+        return false;
+    };
 
-renderCalendar()
+    this.login = function() {
+
+    }
+
+    this.request = function(url, method, head) {
+        let xhr = new XMLHttpRequest();
+        xhr.timeout = 10000
+        xhr.open(method, url)
+        xhr.setRequestHeader('Content-Type', 'application/json')
+        xhr.send(JSON.stringify(head))
+        xhr.onload = function() {
+            if (xhr.status == 200) {
+                let text= JSON.parse(xhr.response)
+                console.log('update date ', text, 11111111111111111111)
+                localStorage['keyrefresh'] = text['refresh']
+                localStorage['keyaccess'] = text['access']
+                console.log(localStorage)
+            }
+        }
+        xhr.onerror = function() {
+            console.log('miss connect')
+        }
+
+    }
+    this.getNewToken = function() {
+        let url = 'http://localhost:8000/api/token/refresh/'
+        let method = "POST"
+        let head = {'refresh': localStorage['keyrefresh']}
+        this.request(url, method, head)
+    }
+
+    this.getdate = function(urldate) {
+        if (!this.checkAvailabilityToken() ) {
+            console.log(1)
+            this.getNewToken()
+        }
+        if (!this.checkTokenAccessExp()) {
+             console.log(2)
+            if (this.time == 2 ) {
+                this.getNewToken();
+            }
+            if (this.time < 120) {
+                setTimeout(()=> this.getdate(urldate), 100*this.time);
+                this.time = this.time*2;
+
+            } else {
+                this.time = 2;
+            }
+            return
+        }
+
+    }
+}
+
+
+
+renderCalendar();
+let rqst = new token();
+rqst.getdate('http://localhost:8000/api/country/holidays/Belarus/');
+
+
+

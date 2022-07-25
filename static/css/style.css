@@ -12,11 +12,12 @@ html {
 .container {
     width: 100%;
     height: 100vh;
+    padding-top: 10rem;
     background-color: #36365a;
     color: #eee;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: space-around;
+
 }
 
 .calendar {
@@ -24,6 +25,29 @@ html {
     height: 52rem;
     background-color: #3f3f4b;
     box-shadow: 0 0.5rem 3rem rgba(0,0, 0, 0.5);
+}
+
+.review {
+    width: 50%;
+    height: 30rem;
+
+}
+
+.holidays {
+    background-color: #c71b4070;
+    padding: 1rem;
+
+}
+
+.notes {
+    padding:  1rem;
+    background-color:#1bc1c770;
+}
+
+.review div,
+.holidays div {
+    font-size: 2.5rem;
+    font-weight: 500;
 }
 
 .month {
@@ -106,4 +130,14 @@ html {
 
 .today {
     background-color: #167e56;
+}
+
+@media screen and (max-width: 1000px){
+    .container{
+        flex-wrap: wrap;
+    }
+    .review {
+        margin: 0px 3rem;
+        width: 100%;
+    }
 }

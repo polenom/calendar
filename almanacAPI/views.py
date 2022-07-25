@@ -9,9 +9,11 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from almanacAPI.serializer import UserSerializer, MyToken, CustomUserSerializer, MyTokenRefresh, UsernameSerializer
+from almanac.models import HolidayCountry
+from almanacAPI.serializer import UserSerializer, MyToken, CustomUserSerializer, MyTokenRefresh, UsernameSerializer, \
+    HolidayCountrySerializer, HolidayCountyrDateSerializer
 from almanacAPI.permissions import IsOwnerOrAdmin, IsLoginOnly
-from accounts.models import CustomUser
+from accounts.models import CustomUser, Country
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
@@ -20,6 +22,18 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = (IsOwnerOrAdmin,)
 
+
+class CountryHolidays(generics.RetrieveAPIView):
+    serializer_class = HolidayCountrySerializer
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = []
+
+
+    def get_object(self):
+        print('querysetttttttttttttttttttttttttttttttt')
+        country = get_object_or_404(Country, countryname = self.kwargs['cntr'])
+        obj = HolidayCountry.objects.filter(country_id=country.pk)
+        return country
 
 class UserView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.all()
@@ -57,7 +71,7 @@ class MyObtainToken(TokenObtainPairView):
 
 class MyRefreshToken(TokenRefreshView):
     permission_classes = (IsLoginOnly,)
-
+    serializer_class = MyTokenRefresh
 
 
 
