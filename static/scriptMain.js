@@ -1,5 +1,5 @@
 const date = new Date();
-
+const sleep = ms => new Promise(ms => setTimeout(r, ms))
 const  renderCalendar = () =>{
 const day = date.getDate();
 const daysFull = daysInMonth(date.getFullYear(), date.getMonth()+1);
@@ -25,9 +25,8 @@ document.querySelector('.date p').innerHTML = date.toDateString()
 let days = "";
 
 const prevLastDay = daysInMonth(date.getFullYear(), date.getMonth())
-const firstDayIndex = new Date(date.getFullYear(), date.getMonth()).getDay();
+let firstDayIndex = new Date(date.getFullYear(), date.getMonth()).getDay();
 let firstDayNext =  new Date(date.getFullYear(), date.getMonth()+1).getDay();
-console.log(firstDayIndex,111)
 if (firstDayIndex == 0) {
     firstDayIndex = 6;
 } else if (firstDayIndex == 1) {
@@ -74,21 +73,22 @@ document.querySelector('.prev').addEventListener('click', ()=>{
     renderCalendar()
 })
 
-function token() {
-    this.response = [];
+function token(div) {
+    this.div = div
+    this.responseapi = [];
     this.time = 2;
+    this.country = 123;
     this.checkAvailabilityToken = function() {
         if (localStorage.getItem('keyrefresh')  && localStorage.getItem('keyaccess')) {
-            return true
+            return true;
         }
-        return false
+        return false;
     };
-    this.checkTokenAccessExp = function(token) {
-        if (!token) {
-            token = localStorage['keyrefresh']
+    this.checkTokenAccessExp = function(tok) {
+        if (!tok) {
+            tok = localStorage['keyrefresh']
         }
-        const data= JSON.parse(atob(token.split('.')[1]))
-        console.log(data, data['exp'] , '====', (new Date().getTime()+3)/1000)
+        const data= JSON.parse(atob(tok.split('.')[1]));
         if (data['exp'] > (new Date().getTime()+3)/1000) {
             return true;
         }
@@ -101,50 +101,107 @@ function token() {
 
     this.request = function(url, method, head) {
         let xhr = new XMLHttpRequest();
+        xhr.responseapi = this.responseapi
         xhr.timeout = 10000
         xhr.open(method, url)
         xhr.setRequestHeader('Content-Type', 'application/json')
         xhr.send(JSON.stringify(head))
         xhr.onload = function() {
-            if (xhr.status == 200) {
+            if (xhr.status == 200 &&  xhr.responseURL == "http://localhost:8000/api/token/refresh/") {
                 let text= JSON.parse(xhr.response)
-                console.log('update date ', text, 11111111111111111111)
-                localStorage['keyrefresh'] = text['refresh']
-                localStorage['keyaccess'] = text['access']
-                console.log(localStorage)
+                console.log(text)
+                if (text['refresh'] && text['access']) {
+                    localStorage['keyrefresh'] = text['refresh'];
+                    localStorage['keyaccess'] = text['access'];
+                    };
+                 return;
+            } else if ( xhr.status == 200 ) {
+                this.responseapi.push(xhr)
             }
         }
         xhr.onerror = function() {
             console.log('miss connect')
         }
+        xhr.timeout = 55000;
 
     }
     this.getNewToken = function() {
         let url = 'http://localhost:8000/api/token/refresh/'
         let method = "POST"
         let head = {'refresh': localStorage['keyrefresh']}
+        console.log(url, method, head, 22222222222222222222)
         this.request(url, method, head)
     }
 
+    this.getCountry = function() {
+        this.country = JSON.parse(atob(localStorage['keyrefresh'].split('.')[1]))['country']
+        return this.country
+    }
+
+    this.checkresponse = function(url) {
+        for (let i of this.responseapi) {
+            if( i.responseURL == url) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    this.bild = function(url) {
+        let obj ;
+        for ( let i of this.responseapi) {
+            if ( i.responseURL == url ) {
+                obj = i;
+                break;
+            }
+        }
+        console.log(obj)
+    }
+
     this.getdate = function(urldate) {
-        if (!this.checkAvailabilityToken() ) {
-            console.log(1)
-            this.getNewToken()
+        console.log(this)
+        console.log(this.time , 'time')
+        if (!this.checkAvailabilityToken()) {
+            login()
         }
         if (!this.checkTokenAccessExp()) {
-             console.log(2)
             if (this.time == 2 ) {
-                this.getNewToken();
+                this.getNewToken()
             }
-            if (this.time < 120) {
-                setTimeout(()=> this.getdate(urldate), 100*this.time);
-                this.time = this.time*2;
+            if (this.time < 600) {
+                this.time = this.time*4;
+                setTimeout(()=> this.getdate(urldate), 100* this.time)
+
 
             } else {
-                this.time = 2;
+                this.getNewToken();
+                setTimeout(()=> checkfunc, 100*this.time);
             }
             return
+        } else {
+            this.time == 2;
         }
+        this.getCountry();
+        if (typeof urldate === 'function' ) {
+                urldate = urldate(this);
+            }
+        if ( !this.checkresponse(urldate)) {
+            if (this.time == 2 ) {
+                this.request(urldate,'GET',{});
+                }
+            if (this.time < 600) {
+                this.time = this.time*4;
+                setTimeout(()=> this.getdate(urldate), 100* this.time)
+            } else {
+                this.request(urldate,'GET',{});
+                setTimeout(()=> checkfunc, 100*this.time);
+            }
+        } else {
+            this.time = 2;
+            this.bild(urldate)
+        }
+
 
     }
 }
@@ -152,8 +209,9 @@ function token() {
 
 
 renderCalendar();
-let rqst = new token();
-rqst.getdate('http://localhost:8000/api/country/holidays/Belarus/');
+const holidays = document.getElementById('')
+let rqst = new token(holidays);
+rqst.getdate((r)=>  {return `http://localhost:8000/api/country/holidays/${r['country']}/`});
 
 
 
