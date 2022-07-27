@@ -12,5 +12,5 @@ class Country(models.Model):
 
 class CustomUser(AbstractUser):
     text = models.CharField(max_length=300)
-    country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, related_name="custom")
+    country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, related_name="custom")
     is_login = models.BooleanField(default=False)

@@ -25,8 +25,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class CountryHolidays(generics.RetrieveAPIView):
     serializer_class = HolidayCountrySerializer
-    permission_classes = (permissions.AllowAny,)
-    authentication_classes = []
+    permission_classes = (permissions.IsAuthenticated,)
 
 
     def get_object(self):

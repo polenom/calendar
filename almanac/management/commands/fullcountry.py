@@ -34,15 +34,18 @@ class Command(BaseCommand):
                 continue
             try:
                 calendar = Calendar(file.text)
+                event = []
                 for holiday in list(calendar.events):
-                    holidays.append(HolidayCountry(
-                                                country=cntr,
-                                                name= holiday.name.split(':')[1],
-                                                datebegin=holiday.begin.datetime,
-                                                dateend=holiday.end.datetime,
-                                                description=holiday.description[:-51]
-                                                )
-                                 )
+                    if holiday.name not in event:
+                        holidays.append(HolidayCountry(
+                                                    country=cntr,
+                                                    name= holiday.name.split(':')[1],
+                                                    datebegin=holiday.begin.datetime,
+                                                    dateend=holiday.end.datetime,
+                                                    description=holiday.description[:-51]
+                                                    )
+                                     )
+                        event.append(holiday.name)
                 HolidayCountry.objects.bulk_create(holidays)
             except FailedParse:
                 continue

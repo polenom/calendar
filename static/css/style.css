@@ -33,6 +33,11 @@ html {
 
 }
 
+.holiday {
+    border-top: 0.3rem solid #c71b4070;
+}
+
+
 .holidays {
     background-color: #c71b4070;
     padding: 1rem;

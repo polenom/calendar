@@ -66,7 +66,8 @@ class MyToken(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super(MyToken, cls).get_token(user)
         token['username'] = user.username
-        token['country'] = user.country.countryname
+        print(user.username , user.country)
+        token['country'] = user.country.countryname if user.country else ''
         return token
 
     def validate(self, attrs):
@@ -82,7 +83,7 @@ class MyTokenRefresh(TokenRefreshSerializer):
     def get_token(cls, user):
         token = super(MyToken, cls).get_token(user)
         token['username'] = user.username
-        token['country'] = user.country.countryname
+        token['country'] = user.country.countryname if user.country else ''
         return token
 
 
