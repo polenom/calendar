@@ -196,16 +196,18 @@ function token(div) {
 
     this.bild = function(url) {
         for ( let i of this.responseapi.reverse()) {
-            if ( i.responseURL == url ) {
+            if ( i.responseURL == url && url.slice(0,43) == 'http://localhost:8000/api/country/holidays/' ) {
                 this.holidays = JSON.parse(i.response);
                 renderCalendar();
                 break;
+            } else if ( i.responseURL == url && url== 'http://localhost:8000/api/user/notes/') {
+                console.log('bild       http://localhost:8000/api/user/notes/      ')
             }
         }
     }
 
     this.getdate = function(urldate) {
-        console.log(this)
+        console.log(urldate)
         console.log(this.time , 'time')
         if (!this.checkAvailabilityToken()) {
             this.login()
@@ -265,6 +267,7 @@ function getTokenFromCookie() {
 getTokenFromCookie()
 let rqst = new token(holidays);
 rqst.getdate((r)=>  {return `http://localhost:8000/api/country/holidays/${r['country']}/`});
+rqst.getdate('http://localhost:8000/api/user/notes/')
 renderCalendar();
 
 

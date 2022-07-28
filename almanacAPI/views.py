@@ -6,12 +6,13 @@ from django.shortcuts import render, get_object_or_404
 # Create your views here.
 from rest_framework import viewsets, generics, mixins, permissions, status
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from almanac.models import HolidayCountry
 from almanacAPI.serializer import UserSerializer, MyToken, CustomUserSerializer, MyTokenRefresh, UsernameSerializer, \
-    HolidayCountrySerializer, HolidayCountyrDateSerializer
+    HolidayCountrySerializer, HolidayCountyrDateSerializer, NotesSerializer, UserForNotesSerializer
 from almanacAPI.permissions import IsOwnerOrAdmin, IsLoginOnly
 from accounts.models import CustomUser, Country
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -29,7 +30,6 @@ class CountryHolidays(generics.RetrieveAPIView):
 
 
     def get_object(self):
-        print('querysetttttttttttttttttttttttttttttttt')
         country = get_object_or_404(Country, countryname = self.kwargs['cntr'])
         obj = HolidayCountry.objects.filter(country_id=country.pk)
         return country
@@ -47,8 +47,6 @@ class UserView(generics.RetrieveAPIView):
 
 class TokenAuth(APIView):
     def get(self, request, **kwargs):
-        print(kwargs, 123)
-        print(request.GET)
         return Response('123')
 
 
@@ -56,13 +54,19 @@ class MyObtainToken(TokenObtainPairView):
     serializer_class = MyToken
     permission_classes = (permissions.AllowAny,)
 
-    def post(self, request, *args, **kwargs):
-        a = MyToken(data=self.request.data)
-        # a.run_validation()
-        # print(a.is_valid())
-        # print(dir(a))
-        print(777)
-        return super().post(request, *args, **kwargs)
+@throttle_classes([])
+class UserNotes(generics.RetrieveAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = UserForNotesSerializer
+
+    def get_object(self):
+        obj = get_object_or_404(CustomUser, pk=self.request.user.pk)
+        return obj
+
+    # def get(self, request):
+    #     user = CustomUser.objects.get(pk=request.user.pk)
+    #     serializer = UserForNotesSerializer(user)
+    #     return Response(serializer.data)
 
 
 

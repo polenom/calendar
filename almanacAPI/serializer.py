@@ -25,9 +25,18 @@ class HolidayCountrySerializer(serializers.ModelSerializer):
         fields = ['countryname', 'holidaycountry']
 
 
+class NotesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MarketDay
+        fields = ['title', 'startdate', 'finishdate', 'description']
 
 
+class UserForNotesSerializer(serializers.ModelSerializer):
+    markday = NotesSerializer(many=True)
 
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email', 'markday']
 
 
 class AdvanceUserSerializer(serializers.ModelSerializer):
@@ -41,7 +50,6 @@ class AdvanceUserSerializer(serializers.ModelSerializer):
 
 class CityUserSerializer(serializers.RelatedField):
     def to_representation(self, value):
-        print(value)
         return f'{value}'
 
 

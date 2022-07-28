@@ -29,15 +29,13 @@ class IsLoginOnly(permissions.BasePermission):
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
         token = body.get('refresh', None)
-        print(token)
         if token:
             decoded = jwt.decode(token, options={'verify_signature': False})
             try:
-                print(123)
                 user =CustomUser.objects.get(username=decoded['username'])
-                print(user.is_login)
                 return user.is_login
             except CustomUser.DoesNotExist:
                 pass
         return False
+
 

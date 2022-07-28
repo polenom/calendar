@@ -21,7 +21,7 @@ class City(models.Model):
 
 class MarketDay(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='markday')
-    name = models.CharField(max_length=200)
+    title = models.CharField(max_length=200)
     startdate = models.DateTimeField()
     finishdate = models.DateTimeField(blank=True, null=True)
     description = models.CharField(max_length=400)

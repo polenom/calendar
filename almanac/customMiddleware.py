@@ -16,7 +16,7 @@ class CustomMiddleware:
         if request.method == "GET" and  '/api/auth/complete/google-oauth2/' in request.path:
             try:
                 key = response.cookies.get('sessionid').value
-            except TypeError:
+            except AttributeError:
                 return response
             if SessionStore(session_key=key).get('_auth_user_id' ):
                 user = CustomUser.objects.get(pk= SessionStore(session_key=key).get('_auth_user_id' ))
