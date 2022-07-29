@@ -103,10 +103,10 @@ function viewHolidaysAndNotes(day, month, year) {
 }
 
 function token(div) {
+    this.notes;
     this.holidays;
     this.div = div
     this.responseapi = [];
-    this.time = 2;
     this.country = 123;
     this.checkAvailabilityToken = function() {
         if (localStorage.getItem('keyrefresh')  && localStorage.getItem('keyaccess')) {
@@ -195,20 +195,29 @@ function token(div) {
     }
 
     this.bild = function(url) {
-        for ( let i of this.responseapi.reverse()) {
+        for ( let i of this.responseapi) {
             if ( i.responseURL == url && url.slice(0,43) == 'http://localhost:8000/api/country/holidays/' ) {
                 this.holidays = JSON.parse(i.response);
                 renderCalendar();
                 break;
             } else if ( i.responseURL == url && url== 'http://localhost:8000/api/user/notes/') {
-                console.log('bild       http://localhost:8000/api/user/notes/      ')
+                this.notes = JSON.parse(i.response)
+                this.responseapi.splice(this.responseapi.indexOf(i),1)
+                renderCalendar()
+                break;
             }
         }
     }
 
-    this.getdate = function(urldate) {
-        console.log(urldate)
-        console.log(this.time , 'time')
+    this.getdate = function(urldate, time , mythis) {
+        console.log(urldate, time , mythis)
+        console.log(this,1111111111111)
+        if (!time) {
+            time = 2
+        }
+        if (!mythis) {
+            mythis = this
+        }
         if (!this.checkAvailabilityToken()) {
             this.login()
         }
@@ -216,20 +225,19 @@ function token(div) {
             this.login()
         }
         if (!this.checkTokenAccessExp(localStorage['keyaccess'])) {
-            console.log('access token check', localStorage['keyaccess'].split('.')[3])
-            if (this.time == 2 ) {
+            if (time == 2 ) {
                 this.getNewToken()
             }
-            if (this.time < 600) {
-                this.time = this.time*4;
-                setTimeout(()=> this.getdate(urldate), 100* this.time)
+            if (time < 600) {
+                time *=4;
+                setTimeout(function() {mythis.getdate(urldate, time, mythis)}, 100*time)
             } else {
                 this.getNewToken();
-                setTimeout(()=> checkfunc, 100*this.time);
+                setTimeout(function() {mythis.getdate(urldate, time, mythis)}, 100*time)
             }
             return
         } else {
-        this.time = 2;}
+        time = 2;}
         this.getCountry();
         if (typeof urldate === 'function' && this.country ) {
                 urldate = urldate(this);
@@ -237,22 +245,26 @@ function token(div) {
                 return
             }
         if ( !this.checkresponse(urldate)) {
-            console.log('check country', this.time)
-            if (this.time == 2 ) {
+            console.log('check country', time)
+            console.log('checkresponse', this.checkresponse(urldate))
+            if (time == 2 ) {
                 this.request(urldate,'GET',{});
                 }
-            if (this.time < 600) {
-                this.time = this.time*4;
-                setTimeout(()=> this.getdate(urldate), 100* this.time)
+            if (time < 600) {
+                let fc = function() {
+                    console.log('this', this)
+                }
+                time *=4;
+                setTimeout(function() {mythis.getdate(urldate, time, mythis)}, 100*time)
             } else {
                 this.request(urldate,'GET',{});
-                setTimeout(()=> checkfunc, 100*this.time);
+                setTimeout(function() {mythis.getdate(urldate, time, mythis)}, 100*time)
             }
+            return;
         } else {
-            this.time = 2;
+            time = 2;
             this.bild(urldate)
         }
-
 
     }
 }
@@ -267,7 +279,7 @@ function getTokenFromCookie() {
 getTokenFromCookie()
 let rqst = new token(holidays);
 rqst.getdate((r)=>  {return `http://localhost:8000/api/country/holidays/${r['country']}/`});
-rqst.getdate('http://localhost:8000/api/user/notes/')
+rqst.getdate('http://localhost:8000/api/user/notes/');
 renderCalendar();
 
 

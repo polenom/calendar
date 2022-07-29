@@ -33,6 +33,11 @@ html {
 
 }
 
+.noteday {
+    outline:solid;
+    outline-color: #1bc1c770 ;
+}
+
 .holiday {
     border-top: 0.3rem solid #c71b4070;
 }
