@@ -10,10 +10,10 @@ from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from almanac.models import HolidayCountry
+from almanac.models import HolidayCountry, MarketDay
 from almanacAPI.serializer import UserSerializer, MyToken, CustomUserSerializer, MyTokenRefresh, UsernameSerializer, \
-    HolidayCountrySerializer, HolidayCountyrDateSerializer, NotesSerializer, UserForNotesSerializer
-from almanacAPI.permissions import IsOwnerOrAdmin, IsLoginOnly
+    HolidayCountrySerializer, HolidayCountyrDateSerializer, NotesSerializer, UserForNotesSerializer, NoteAddSerializer
+from almanacAPI.permissions import IsOwnerOrAdmin, IsLoginOnly, IsHaveObj
 from accounts.models import CustomUser, Country
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -34,11 +34,26 @@ class CountryHolidays(generics.RetrieveAPIView):
         obj = HolidayCountry.objects.filter(country_id=country.pk)
         return country
 
+class UserNoteAdd(generics.CreateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = NotesSerializer
+
+    def perform_create(self, serializer):
+        user = serializer.save(user=self.request.user)
+
+class UserNoteUpdate(generics.UpdateAPIView):
+    permission_classes = (IsHaveObj,)
+    serializer_class = NotesSerializer
+    queryset = MarketDay.objects.all()
+
+
 class UserView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
+
     # authentication_classes = (SessionAuthentication,)
     # permission_classes = (permissions.AllowAny,)
+
 
     def get_object(self):
         obj = get_object_or_404(CustomUser, pk=1)

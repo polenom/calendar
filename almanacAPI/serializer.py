@@ -26,9 +26,17 @@ class HolidayCountrySerializer(serializers.ModelSerializer):
 
 
 class NotesSerializer(serializers.ModelSerializer):
+
+
     class Meta:
         model = MarketDay
         fields = ['title', 'startdate', 'finishdate', 'description']
+
+class NoteAddSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MarketDay
+        fields = ['user', 'title', 'startdate', 'finishdate', 'description']
+
 
 
 class UserForNotesSerializer(serializers.ModelSerializer):

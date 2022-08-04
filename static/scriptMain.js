@@ -99,6 +99,9 @@ function viewHolidaysAndNotes(day, month, year) {
                 }
             }
         }
+    if (placeHolidays.hidden ) {
+        placeHolidays.hidden = false;
+    }
     placeHolidays.innerHTML = res
 }
 

@@ -38,4 +38,10 @@ class IsLoginOnly(permissions.BasePermission):
                 pass
         return False
 
+class IsHaveObj(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user.pk == obj.user_id:
+            return True
+        return False
+
 
