@@ -49,9 +49,9 @@ function daysInMonth (year, month) {
 for (let i = firstDayIndex-1; i > 0 ; i--) {
     let month = date.getMonth()?date.getMonth():12
     if (rqst.checkHolidayIn(prevLastDay - i + 1,month)) {
-        days += `<div class='prev-date holiday' onclick='viewHolidaysAndNotes(${prevLastDay - i + 1}, ${month}, ${date.getFullYear()}>${prevLastDay - i + 1 }</div> `
+        days += `<div class='prev-date holiday' onclick='viewHolidaysAndNotes(${prevLastDay - i + 1}, ${month}, ${date.getMonth() == 0?date.getFullYear()-1:date.getFullYear()})' ondblclick='addNote(${date.getFullYear()}, ${date.getMonth() == 0?12:date.getMonth()}, ${prevLastDay - i + 1 })'</div> `
     } else {
-        days += `<div class='prev-date'>${prevLastDay - i + 1 }</div> `
+        days += `<div class='prev-date' ondblclick='addNote(${date.getMonth() == 0?date.getFullYear()-1:date.getFullYear()}, ${date.getMonth() == 0?12:date.getMonth()}, ${prevLastDay - i + 1 })'>${prevLastDay - i + 1 }</div> `
     }
 }
 
@@ -63,17 +63,17 @@ for  (let i = 1; i <= daysFull;i++) {
         today = true;
     }
     if (rqst.checkHolidayIn(i,date.getMonth()+1)) {
-        days += `<div class='holiday ${today?"today":""}' onclick='viewHolidaysAndNotes(${i}, ${date.getMonth() + 1})'> ${i}</div>`;
+        days += `<div class='holiday ${today?"today":""}' onclick='viewHolidaysAndNotes(${i}, ${date.getMonth() + 1})' ondblclick='addNote(${date.getFullYear()}, ${date.getMonth()+1}, ${i})'> ${i}</div>`;
     } else {
-        days += `<div ${today?'class="today"':''}>${i}</div>`;
+        days += `<div ${today?'class="today"':''} ondblclick='addNote(${date.getFullYear()}, ${date.getMonth()+1}, ${i})'>${i}</div>`;
     }
 }
 
 for ( let i  = 1; i<=7 - firstDayNext ; i++) {
     if (rqst.checkHolidayIn(i ,(date.getMonth()+2) <= 12?date.getMonth()+2:1)) {
-        days += `<div class="next-date holiday">${i}</div>`
+        days += `<div class="next-date holiday" onclick='viewHolidaysAndNotes(${i}, ${date.getMonth() == 11?1:date.getMonth() + 2}, ${date.getFullYear()})' ondblclick='addNote(${date.getMonth() == 11?date.getFullYear()+1:date.getFullYear()}, ${date.getMonth() == 11?1:date.getMonth() + 2}, ${i})'>${i}</div>`
     } else {
-        days += `<div class="next-date">${i}</div>`
+        days += `<div class="next-date" ondblclick='addNote(${date.getMonth() == 11?date.getFullYear()+1:date.getFullYear()}, ${date.getMonth() == 11?1:date.getMonth() + 2}, ${i})'>${i}</div>`
     }
 }
 monthDays.innerHTML = days;
@@ -167,7 +167,9 @@ function token(div) {
                 this.responseapi.push(xhr)
             } else if (xhr.status == 401) {
                 this.getNewToken()
-
+            } else if (xhr.status == 201  && xhr.responseURL == 'http://localhost:8000/api/user/note/add/') {
+                this.responseapi.push(xhr);
+                removeElem(document.getElementById('con-popup-id'));
             }
         }
         xhr.onerror = function() {
@@ -212,9 +214,7 @@ function token(div) {
         }
     }
 
-    this.getdate = function(urldate, time , mythis) {
-        console.log(urldate, time , mythis)
-        console.log(this,1111111111111)
+    this.getdate = function(urldate, head={},method="GET", time , mythis) {
         if (!time) {
             time = 2
         }
@@ -233,10 +233,10 @@ function token(div) {
             }
             if (time < 600) {
                 time *=4;
-                setTimeout(function() {mythis.getdate(urldate, time, mythis)}, 100*time)
+                setTimeout(function() {mythis.getdate(urldate, head, method, time, mythis, )}, 100*time)
             } else {
                 this.getNewToken();
-                setTimeout(function() {mythis.getdate(urldate, time, mythis)}, 100*time)
+                setTimeout(function() {mythis.getdate(urldate, head,method, time, mythis)}, 100*time)
             }
             return
         } else {
@@ -248,20 +248,15 @@ function token(div) {
                 return
             }
         if ( !this.checkresponse(urldate)) {
-            console.log('check country', time)
-            console.log('checkresponse', this.checkresponse(urldate))
             if (time == 2 ) {
-                this.request(urldate,'GET',{});
+                this.request(urldate, method,head);
                 }
             if (time < 600) {
-                let fc = function() {
-                    console.log('this', this)
-                }
                 time *=4;
-                setTimeout(function() {mythis.getdate(urldate, time, mythis)}, 100*time)
+                setTimeout(function() {mythis.getdate(urldate, head, method, time, mythis)}, 100*time)
             } else {
-                this.request(urldate,'GET',{});
-                setTimeout(function() {mythis.getdate(urldate, time, mythis)}, 100*time)
+                this.request(urldate,method,{});
+                setTimeout(function() {mythis.getdate(urldate, head, method, time, mythis)}, 100*time)
             }
             return;
         } else {
@@ -270,6 +265,55 @@ function token(div) {
         }
 
     }
+}
+
+function addNote(Y, M, D) {
+    let intext = `<div class="popup">
+                    <div class="row-input">
+                        <div class="r-1">
+                            <label for="titlenote">Title</label>
+                            <input type="text" id="titlenote" name="title">
+                        </div>
+                        <div class="r-2">
+                            <div>
+                                <label for="date">from</label>
+                                <input type="datetime-local" id="datefrom" value="${Y}-${M<10?'0'+(M).toString():M}-${D < 10?'0' + (D).toString():D}T00:00" name="startdate">
+                            </div>
+                            <div>
+                                <label for="dateto">to</label>
+                                <input type="datetime-local" id="dateto" value="${Y}-${M<10?'0'+(M).toString():M}-${D < 10?'0' + (D).toString():D}T23:59" name="finishdate">
+                            </div>
+                        </div>
+                        <div class="r-3">
+                            <label for="descnote">Description</label>
+                            <textarea type="text" id="descnote" name='description'></textarea>
+                        </div>
+                    </div>
+                    <div class="row-button">
+                        <input type="button" value="SAVE" id="input-save-popup">
+                        <input type="button" value="BACK" id="input-back-popup">
+                    </div>
+                </div>`
+    let popup = document.createElement('div')
+    popup.setAttribute('id', 'con-popup-id')
+    popup.setAttribute('class', 'con-popup')
+    popup.innerHTML = intext
+    document.body.insertBefore(popup, document.querySelector('script'))
+    document.getElementById('input-back-popup').addEventListener('click', ()=> removeElem(document.getElementById('con-popup-id')));
+    document.getElementById('input-save-popup').addEventListener('click', ()=> sendNote(document.querySelector('.row-input')));
+}
+
+function sendNote(elem) {
+    let head = {};
+    for ( let  i of elem.querySelectorAll('input')) {
+        head[i.name] = i.value
+    }
+    head[elem.querySelector('textarea').name] = elem.querySelector('textarea').value
+    rqst.getdate('http://localhost:8000/api/user/note/add/', head, 'POST')
+}
+
+function removeElem(elem) {
+    elem.remove()
 }
 
 function getTokenFromCookie() {

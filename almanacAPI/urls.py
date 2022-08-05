@@ -4,7 +4,7 @@ from django.urls import path, include, re_path
 from rest_framework import routers
 
 from almanacAPI.views import UserViewSet, UserView, TokenAuth, MyObtainToken, CustomUserCreate, MyRefreshToken, \
-    CheckUserCreate, CountryHolidays , UserNotes, UserNoteAdd, UserNoteUpdate
+    CheckUserCreate, CountryHolidays , UserNotes, UserNoteAdd, UserNoteUpdate, UserNoteDelete
 from rest_framework_simplejwt import views as jwt
 
 router = routers.DefaultRouter()
@@ -22,5 +22,6 @@ urlpatterns = [
     path('user/notes/', UserNotes.as_view(), name='user-notes'),
     path('user/note/add/', UserNoteAdd.as_view(), name='user-note-add'),
     path('user/note/update/<int:pk>/', UserNoteUpdate.as_view(), name="user-note-update"),
+    path('user/note/delete/<int:pk>/', UserNoteDelete.as_view(), name="user-note-update"),
     re_path('^auth/', include('rest_framework_social_oauth2.urls')),
 ]

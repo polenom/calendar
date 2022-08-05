@@ -47,6 +47,11 @@ class UserNoteUpdate(generics.UpdateAPIView):
     queryset = MarketDay.objects.all()
 
 
+class UserNoteDelete( generics.DestroyAPIView):
+    permission_classes = (IsHaveObj,)
+    serializer_class = NotesSerializer
+    queryset = MarketDay.objects.all()
+
 class UserView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
