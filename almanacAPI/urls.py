@@ -20,7 +20,7 @@ urlpatterns = [
     path('user/check/', CheckUserCreate.as_view(), name='user-chek'),
     path('country/holidays/<str:cntr>/', CountryHolidays.as_view(), name='country-holidays'),
     path('user/notes/', UserNotes.as_view(), name='user-notes'),
-    path('user/note/add/', UserNoteAdd.as_view(), name='user-note-add'),
+    path('user/note/add/<str:title>/', UserNoteAdd.as_view(), name='user-note-add'),
     path('user/note/update/<int:pk>/', UserNoteUpdate.as_view(), name="user-note-update"),
     path('user/note/delete/<int:pk>/', UserNoteDelete.as_view(), name="user-note-update"),
     re_path('^auth/', include('rest_framework_social_oauth2.urls')),

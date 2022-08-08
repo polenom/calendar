@@ -20,6 +20,8 @@ class CustomMiddleware:
                 return response
             if SessionStore(session_key=key).get('_auth_user_id' ):
                 user = CustomUser.objects.get(pk= SessionStore(session_key=key).get('_auth_user_id' ))
+                user.is_login = True
+                user.save()
                 token = MyToken.get_token(user)
                 zone = zoneinfo.ZoneInfo('Europe/Minsk')
                 time = datetime.now(zone) + timedelta(seconds=600)

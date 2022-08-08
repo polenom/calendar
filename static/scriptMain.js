@@ -47,34 +47,59 @@ function daysInMonth (year, month) {
     return new Date(year, month, 0).getDate()
 }
 for (let i = firstDayIndex-1; i > 0 ; i--) {
-    let month = date.getMonth()?date.getMonth():12
+    let month = date.getMonth()?date.getMonth():12;
+    let click = '';
+    let classday = '';
     if (rqst.checkHolidayIn(prevLastDay - i + 1,month)) {
-        days += `<div class='prev-date holiday' onclick='viewHolidaysAndNotes(${prevLastDay - i + 1}, ${month}, ${date.getMonth() == 0?date.getFullYear()-1:date.getFullYear()})' ondblclick='addNote(${date.getFullYear()}, ${date.getMonth() == 0?12:date.getMonth()}, ${prevLastDay - i + 1 })'</div> `
-    } else {
-        days += `<div class='prev-date' ondblclick='addNote(${date.getMonth() == 0?date.getFullYear()-1:date.getFullYear()}, ${date.getMonth() == 0?12:date.getMonth()}, ${prevLastDay - i + 1 })'>${prevLastDay - i + 1 }</div> `
+        classday += 'holiday';
     }
+    if (rqst.checkNote(date.getFullYear(), month, prevLastDay - i + 1)) {
+        classday += ' noteday'
+    }
+    if ( classday.length > 0) {
+        click = `onclick='viewHolidaysAndNotes( ${prevLastDay - i + 1 }, ${month}, ${date.getFullYear()})'`
+    }
+    days += `<div class='prev-date ${classday}' ${click} ondblclick='addNote(${date.getMonth() == 0?date.getFullYear()-1:date.getFullYear()}, ${date.getMonth() == 0?12:date.getMonth()}, ${prevLastDay - i + 1 })'>${prevLastDay - i + 1 }</div> `
+
 }
 
 
 
 for  (let i = 1; i <= daysFull;i++) {
     let today = false;
+    let month = date.getMonth() + 1;
     if (i == day && new Date().getMonth() == date.getMonth() && new Date().getFullYear() == date.getFullYear()) {
         today = true;
     }
-    if (rqst.checkHolidayIn(i,date.getMonth()+1)) {
-        days += `<div class='holiday ${today?"today":""}' onclick='viewHolidaysAndNotes(${i}, ${date.getMonth() + 1})' ondblclick='addNote(${date.getFullYear()}, ${date.getMonth()+1}, ${i})'> ${i}</div>`;
-    } else {
-        days += `<div ${today?'class="today"':''} ondblclick='addNote(${date.getFullYear()}, ${date.getMonth()+1}, ${i})'>${i}</div>`;
+    let click ='';
+    let classday = '';
+    if (rqst.checkHolidayIn(i,month)) {
+        classday += 'holiday';
     }
+    if (rqst.checkNote(date.getFullYear(), month,i)) {
+        classday += ' noteday'
+    }
+    if ( classday.length > 0) {
+        click = `onclick='viewHolidaysAndNotes( ${i}, ${month}, ${date.getFullYear()})'`
+    }
+    days += `<div class='${today?"today":""} ${classday}' ${click} ondblclick='addNote(${date.getFullYear()}, ${date.getMonth()+1}, ${i})'> ${i}</div>`;
 }
 
 for ( let i  = 1; i<=7 - firstDayNext ; i++) {
-    if (rqst.checkHolidayIn(i ,(date.getMonth()+2) <= 12?date.getMonth()+2:1)) {
-        days += `<div class="next-date holiday" onclick='viewHolidaysAndNotes(${i}, ${date.getMonth() == 11?1:date.getMonth() + 2}, ${date.getFullYear()})' ondblclick='addNote(${date.getMonth() == 11?date.getFullYear()+1:date.getFullYear()}, ${date.getMonth() == 11?1:date.getMonth() + 2}, ${i})'>${i}</div>`
-    } else {
-        days += `<div class="next-date" ondblclick='addNote(${date.getMonth() == 11?date.getFullYear()+1:date.getFullYear()}, ${date.getMonth() == 11?1:date.getMonth() + 2}, ${i})'>${i}</div>`
+    let month = date.getMonth() == 11?1:date.getMonth() + 2;
+    let year = date.getMonth() == 11?date.getFullYear()+1:date.getFullYear();
+    let click ='';
+    let classday = '';
+    if (rqst.checkHolidayIn(i,month)) {
+        classday += 'holiday';
     }
+    if (rqst.checkNote(year, month,i)) {
+        classday += ' noteday'
+    }
+    if ( classday.length > 0) {
+        click = `onclick='viewHolidaysAndNotes( ${i}, ${month}, ${year})'`
+    }
+    days += `<div class="next-date ${classday}" ${click} ondblclick='addNote(${year}, ${month}, ${i})'>${i}</div>`
 }
 monthDays.innerHTML = days;
 }
@@ -92,7 +117,6 @@ function viewHolidaysAndNotes(day, month, year) {
             for (let hoday of rqst.holidays['holidaycountry']) {
                 let dt = hoday['datebegin'].split('/')
                 if (parseInt(dt[0]) === month && parseInt(dt[1]) === day ) {
-                    console.log(hoday)
                    res += `<div><h5> ${hoday['datebegin']} - ${hoday['dateend']} ${hoday['name']} </h5>
                           ${hoday['description']}
                    </div>`
@@ -140,6 +164,19 @@ function token(div) {
         return false
     }
 
+    this.checkNote = function(Y, M, D) {
+        if (this.notes == undefined) {
+            return false
+        }
+        for (let i of this.notes['markday']) {
+            let dt = i['startdate'].slice(0,10).split('-');
+            if (dt[0] == Y && dt[1] == M && dt[2] == D) {
+                return true
+            }
+        }
+        return false
+    }
+
     this.login = function() {
 
     }
@@ -157,7 +194,6 @@ function token(div) {
         xhr.onload = function() {
             if (xhr.status == 200 &&  xhr.responseURL == "http://localhost:8000/api/token/refresh/") {
                 let text= JSON.parse(xhr.response)
-                console.log(text)
                 if (text['refresh'] && text['access']) {
                     localStorage['keyrefresh'] = text['refresh'];
                     localStorage['keyaccess'] = text['access'];
@@ -167,8 +203,8 @@ function token(div) {
                 this.responseapi.push(xhr)
             } else if (xhr.status == 401) {
                 this.getNewToken()
-            } else if (xhr.status == 201  && xhr.responseURL == 'http://localhost:8000/api/user/note/add/') {
-                this.responseapi.push(xhr);
+            } else if (xhr.status == 201  && xhr.responseURL.slice(0,40) == 'http://localhost:8000/api/user/note/add/') {
+                this.responseapi.push(xhr)
                 removeElem(document.getElementById('con-popup-id'));
             }
         }
@@ -181,7 +217,7 @@ function token(div) {
     this.getNewToken = function() {
         let url = 'http://localhost:8000/api/token/refresh/'
         let method = "POST"
-        let head = {'refresh': localStorage['keyrefresh']}
+        let head = {'refresh': localStorage['keyrefresh']};
         this.request(url, method, head)
     }
 
@@ -222,9 +258,11 @@ function token(div) {
             mythis = this
         }
         if (!this.checkAvailabilityToken()) {
+            console.log('login AVALIB')
             this.login()
         }
         if (!this.checkTokenAccessExp(localStorage['keyrefresh'])) {
+            console.log('login refresh')
             this.login()
         }
         if (!this.checkTokenAccessExp(localStorage['keyaccess'])) {
@@ -248,6 +286,7 @@ function token(div) {
                 return
             }
         if ( !this.checkresponse(urldate)) {
+            console.log(urldate, time)
             if (time == 2 ) {
                 this.request(urldate, method,head);
                 }
@@ -260,10 +299,11 @@ function token(div) {
             }
             return;
         } else {
+            console.log(urldate, time, "billlllllllllllllllllllllllllllllllld")
             time = 2;
             this.bild(urldate)
         }
-
+        return console.log(urldate)
     }
 }
 
@@ -309,7 +349,7 @@ function sendNote(elem) {
         head[i.name] = i.value
     }
     head[elem.querySelector('textarea').name] = elem.querySelector('textarea').value
-    rqst.getdate('http://localhost:8000/api/user/note/add/', head, 'POST')
+    rqst.getdate(`http://localhost:8000/api/user/note/add/${(new Date()).getTime()}/`, head, 'POST')
 }
 
 function removeElem(elem) {
