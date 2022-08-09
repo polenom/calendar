@@ -1,6 +1,7 @@
 const date = new Date();
 const sleep = ms => new Promise(ms => setTimeout(r, ms))
 const placeHolidays = document.getElementById('holidays')
+const placeHotes = document.getElementById('notes-palace')
 const  renderCalendar = () =>{
 const day = date.getDate();
 const daysFull = daysInMonth(date.getFullYear(), date.getMonth()+1);
@@ -123,11 +124,118 @@ function viewHolidaysAndNotes(day, month, year) {
                 }
             }
         }
-    if (placeHolidays.hidden ) {
-        placeHolidays.hidden = false;
-    }
     placeHolidays.innerHTML = res
+    res = ''
+    if (rqst.notes) {
+
+        let mas = rqst.notes['markday'].filter(a => { if (a['startdate'].slice(0,4) >= year && a['finishdate'].slice(0,4) <= year &&
+                                                               a['startdate'].slice(5,7) >= month && a['finishdate'].slice(5,7) <= month &&
+                                                               a['startdate'].slice(8,10) >= day && a['finishdate'].slice(8,10) <= day
+                                                            ) {
+                                                                return true
+                                                            }
+                                                            return false
+                                                            }).sort((a,b) => { return (new Date(a['startdate'])) - (new Date(b['startdate']))});
+        for ( let i=0; i < mas.length; i++ ) {
+            res += `<div class="note" id="note-${i}">
+                        <div class='row-3'>
+                            <div>
+                                <label for="note-${i}-title">${i+1}) Title: </label>
+                                <span id="note-${i}-title">${mas[i]['title']}</span>
+                            </div>
+                            <div>
+                                <label for="note-${i}-datebegin">From: </label>
+                                <span id="note-${i}-datebegin"> ${mas[i]['startdate'].slice(0,10).replaceAll('-', '/')} ${mas[i]['startdate'].slice(11,19)}</span>
+                                <label for="note-${i}-dateend">To: </label>
+                                <span for="note-${i}-dateend">${mas[i]['startdate'].slice(0,10).replaceAll('-', '/')} ${mas[i]['startdate'].slice(11,19)}</span>
+                            </div>
+                            <div>
+                                <label for="note-2-textarea">Description: </label>
+                                <p> ${mas[i]['description']} </p>
+                            </div>
+                        </div>
+                        <div class="row-1">
+                            <input type="button" onclick='changeNote("note-${i}",${mas[i]['id']})' value="change">
+                            <input type="button" value="del" onclick='deleteNote("note-${i}",${mas[i]["id"]})'>
+                        </div>
+                    </div>`
+        }
+    }
+    placeHotes.innerHTML = res
 }
+
+function deleteNote(elem, id) {
+    console.log('deleteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', id, elem)
+    rqst.getdate(`http://localhost:8000/api/user/note/delete/${id}/`,{}, "DELETE")
+    document.getElementById(elem).remove()
+}
+
+function changeNote(elem, id) {
+    let el = document.getElementById(elem)
+    let vl = getObjFromId(id);
+    let num = elem.slice(5)
+    el.innerHTML = `<div class='row-3'>
+                        <div class="row-3-1">
+                            <label for="note-${num}-title">1) Title: </label>
+                            <input type="text" id="note-1-tile" value='${vl["title"]}'>
+                        </div>
+                        <div class="row-3-2">
+                            <label for="note-1-datebegin">From: </label>
+                            <input type="datetime-local" id="note-1-datebegin" value='${vl["startdate"].slice(0,16)}'>
+                            <label for="note-1-dateend">To: </label>
+                            <input type="datetime-local" id="note-1-dateend" value='${vl["finishdate"].slice(0,16)}'>
+                        </div>
+                        <div  class="row-3-3">
+                            <label for="note-1-textarea">Description: </label>
+                            <textarea type="text" id="note-1-textarea">${vl['description']}</textarea>
+                        </div>
+                    </div>
+                    <div class="row-1">
+                        <input type="button" value="save">
+                        <input type="button" value="back" onclick="backNotes('${elem}',${id})">
+                    </div>`
+}
+
+function backNotes(elem, id ) {
+    let vl = getObjFromId(id);
+    let i = elem.slice(5)
+    console.log(vl, i)
+    document.getElementById(elem).innerHTML = `
+                        <div class='row-3'>
+                            <div>
+                                <label for="note-${i}-title">2) Title: </label>
+                                <span id="note-${i}-title">${vl['title']}</span>
+                            </div>
+                            <div>
+                                <label for="note-${i}-datebegin">From: </label>
+                                <span id="note-${i}-datebegin"> ${vl['startdate'].slice(0,10).replaceAll('-', '/')} ${vl['startdate'].slice(11,19)}</span>
+                                <label for="note-${i}-dateend">To: </label>
+                                <span for="note-${i}-dateend">${vl['startdate'].slice(0,10).replaceAll('-', '/')} ${vl['startdate'].slice(11,19)}</span>
+                            </div>
+                            <div>
+                                <label for="note-2-textarea">Description: </label>
+                                <p> ${vl['description']} </p>
+                            </div>
+                        </div>
+                        <div class="row-1">
+                            <input type="button" onclick='changeNote("note-${i}",${vl['id']})' value="change">
+                            <input type="button" value="del">
+                        </div>
+    `
+
+}
+
+function getObjFromId(id) {
+    if ( rqst.notes['markday']) {
+        for ( let i of rqst.notes['markday']) {
+            if (i['id'] == id ) {
+                return i
+            }
+        }
+    }
+    return undefined
+}
+
 
 function token(div) {
     this.notes;
@@ -183,8 +291,8 @@ function token(div) {
 
     this.request = function(url, method, head) {
         let xhr = new XMLHttpRequest();
-        xhr.responseapi = this.responseapi
-        xhr.timeout = 10000
+        let t = this;
+        xhr.responseapi = this.responseapi;
         xhr.open(method, url)
         xhr.setRequestHeader('Content-Type', 'application/json')
         if (localStorage['keyaccess']) {
@@ -205,7 +313,12 @@ function token(div) {
                 this.getNewToken()
             } else if (xhr.status == 201  && xhr.responseURL.slice(0,40) == 'http://localhost:8000/api/user/note/add/') {
                 this.responseapi.push(xhr)
+                t.getdate('http://localhost:8000/api/user/notes/')
                 removeElem(document.getElementById('con-popup-id'));
+            } else if (xhr.status == 204 && xhr.responseURL.slice(0,43) == 'http://localhost:8000/api/user/note/delete/') {
+                console.log(xhr.responseURL.slice(0,43))
+                t.getdate('http://localhost:8000/api/user/notes/')
+                this.responseapi.push(xhr)
             }
         }
         xhr.onerror = function() {
@@ -240,12 +353,12 @@ function token(div) {
             if ( i.responseURL == url && url.slice(0,43) == 'http://localhost:8000/api/country/holidays/' ) {
                 this.holidays = JSON.parse(i.response);
                 renderCalendar();
-                break;
+                return;
             } else if ( i.responseURL == url && url== 'http://localhost:8000/api/user/notes/') {
                 this.notes = JSON.parse(i.response)
                 this.responseapi.splice(this.responseapi.indexOf(i),1)
                 renderCalendar()
-                break;
+                return;
             }
         }
     }
@@ -346,10 +459,18 @@ function addNote(Y, M, D) {
 function sendNote(elem) {
     let head = {};
     for ( let  i of elem.querySelectorAll('input')) {
+        if (i.value ) {
         head[i.name] = i.value
+        }
     }
-    head[elem.querySelector('textarea').name] = elem.querySelector('textarea').value
-    rqst.getdate(`http://localhost:8000/api/user/note/add/${(new Date()).getTime()}/`, head, 'POST')
+    if (elem.querySelector('textarea').value) {
+            head[elem.querySelector('textarea').name] = elem.querySelector('textarea').value
+    }
+    console.log(head)
+    if ( Object.keys(head).length == 4) {
+        rqst.getdate(`http://localhost:8000/api/user/note/add/${(new Date()).getTime()}/`, head, 'POST');
+    }
+
 }
 
 function removeElem(elem) {

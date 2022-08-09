@@ -30,7 +30,7 @@ class NotesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MarketDay
-        fields = ['title', 'startdate', 'finishdate', 'description']
+        fields = ['title', 'startdate', 'finishdate', 'description', 'id']
 
 class NoteAddSerializer(serializers.ModelSerializer):
     class Meta:
