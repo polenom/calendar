@@ -31,6 +31,7 @@ class NotesSerializer(serializers.ModelSerializer):
     class Meta:
         model = MarketDay
         fields = ['title', 'startdate', 'finishdate', 'description', 'id']
+        read_only_fields = ['id']
 
 class NoteAddSerializer(serializers.ModelSerializer):
     class Meta:

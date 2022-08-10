@@ -174,53 +174,86 @@ function changeNote(elem, id) {
     let el = document.getElementById(elem)
     let vl = getObjFromId(id);
     let num = elem.slice(5)
-    el.innerHTML = `<div class='row-3'>
+    el.innerHTML = `<div class='row-3' id="row-3-note-${num}">
                         <div class="row-3-1">
                             <label for="note-${num}-title">1) Title: </label>
-                            <input type="text" id="note-1-tile" value='${vl["title"]}'>
+                            <input type="text" id="note-${num}-tile" name='title' value='${vl["title"]}'>
                         </div>
                         <div class="row-3-2">
-                            <label for="note-1-datebegin">From: </label>
-                            <input type="datetime-local" id="note-1-datebegin" value='${vl["startdate"].slice(0,16)}'>
-                            <label for="note-1-dateend">To: </label>
-                            <input type="datetime-local" id="note-1-dateend" value='${vl["finishdate"].slice(0,16)}'>
+                            <label for="note-${num}-datebegin">From: </label>
+                            <input type="datetime-local" id="note-${num}-datebegin" name='startdate' value='${vl["startdate"].slice(0,16)}'>
+                            <label for="note-${num}-dateend">To: </label>
+                            <input type="datetime-local" id="note-${num}-dateend" name='finishdate' value='${vl["finishdate"].slice(0,16)}'>
                         </div>
                         <div  class="row-3-3">
-                            <label for="note-1-textarea">Description: </label>
-                            <textarea type="text" id="note-1-textarea">${vl['description']}</textarea>
+                            <label for="note-${num}-textarea">Description: </label>
+                            <textarea type="text" id="note-${num}-textarea" name='description'>${vl['description']}</textarea>
                         </div>
                     </div>
                     <div class="row-1">
-                        <input type="button" value="save">
+                        <input type="button" value="save" onclick="saveChangeNote('${elem}', ${id})">
                         <input type="button" value="back" onclick="backNotes('${elem}',${id})">
                     </div>`
 }
 
+function checkTwoObj(obj1, obj2) {
+    if ( obj1['title'] ==  obj2['title'] &&
+         obj1['startdate'].slice(0, 16) == obj2['startdate'].slice(0, 16) &&
+         obj1['finishdate'].slice(0, 16) == obj2['finishdate'].slice(0, 16) &&
+         obj1['description'] == obj2['description']
+    ){
+        return false;
+    }
+
+    return true;
+}
+
+function saveChangeNote(elem, id) {
+    let vl = getObjFromId(id);
+    let head = {};
+    elem = document.getElementById(elem);
+    for ( let  i of elem.querySelector('.row-3').querySelectorAll('input')) {
+        if (i.value ) {
+            head[i.name] = i.value
+        }
+    }
+    if (elem.querySelector('textarea').value) {
+            head[elem.querySelector('textarea').name] = elem.querySelector('textarea').value
+    }
+    console.log(head)
+    if (checkTwoObj(vl, head)) {
+        rqst.getdate(`http://localhost:8000/api/user/note/update/${id}/`, head, 'PUT')
+    }
+
+}
+
+
 function backNotes(elem, id ) {
     let vl = getObjFromId(id);
     let i = elem.slice(5)
-    console.log(vl, i)
     document.getElementById(elem).innerHTML = `
-                        <div class='row-3'>
-                            <div>
-                                <label for="note-${i}-title">2) Title: </label>
-                                <span id="note-${i}-title">${vl['title']}</span>
+                            <div class='row-3'>
+                                <div>
+                                    <label for="note-${i}-title">${i+1}) Title: </label>
+                                    <span id="note-${i}-title">${vl['title']}</span>
+                                </div>
+                                <div>
+                                    <label for="note-${i}-datebegin">From: </label>
+                                    <span id="note-${i}-datebegin"> ${vl['startdate'].slice(0,10).replaceAll('-', '/')} ${vl['startdate'].slice(11,19)}</span>
+                                    <label for="note-${i}-dateend">To: </label>
+                                    <span for="note-${i}-dateend">${vl['startdate'].slice(0,10).replaceAll('-', '/')} ${vl['startdate'].slice(11,19)}</span>
+                                </div>
+                                <div>
+                                    <label for="note-2-textarea">Description: </label>
+                                    <p> ${vl['description']} </p>
+                                </div>
                             </div>
-                            <div>
-                                <label for="note-${i}-datebegin">From: </label>
-                                <span id="note-${i}-datebegin"> ${vl['startdate'].slice(0,10).replaceAll('-', '/')} ${vl['startdate'].slice(11,19)}</span>
-                                <label for="note-${i}-dateend">To: </label>
-                                <span for="note-${i}-dateend">${vl['startdate'].slice(0,10).replaceAll('-', '/')} ${vl['startdate'].slice(11,19)}</span>
+                            <div class="row-1">
+                                <input type="button" onclick='changeNote("note-${i}",${vl['id']})' value="change">
+                                <input type="button" value="del" onclick='deleteNote("note-${i}",${vl["id"]})'>
                             </div>
-                            <div>
-                                <label for="note-2-textarea">Description: </label>
-                                <p> ${vl['description']} </p>
-                            </div>
-                        </div>
-                        <div class="row-1">
-                            <input type="button" onclick='changeNote("note-${i}",${vl['id']})' value="change">
-                            <input type="button" value="del">
-                        </div>
+
+
     `
 
 }
@@ -300,6 +333,7 @@ function token(div) {
         }
         xhr.send(JSON.stringify(head))
         xhr.onload = function() {
+            console.log(xhr.responseURL.slice(0,43), xhr.status,'heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeed')
             if (xhr.status == 200 &&  xhr.responseURL == "http://localhost:8000/api/token/refresh/") {
                 let text= JSON.parse(xhr.response)
                 if (text['refresh'] && text['access']) {
@@ -307,6 +341,14 @@ function token(div) {
                     localStorage['keyaccess'] = text['access'];
                     };
                  return;
+            } else if (xhr.status == 200 && xhr.responseURL.slice(0,43) == 'http://localhost:8000/api/user/note/update/') {
+                this.responseapi.push(xhr);
+                let vl = getObjFromId(xhr.responseURL.slice(43,47));
+                vl['title'] = head['title']
+                vl['startdate'] = head['startdate']
+                vl['finishdate'] = head['finishdate']
+                vl['description'] = head['description']
+                console.log(vl, head)
             } else if ( xhr.status == 200 ) {
                 this.responseapi.push(xhr)
             } else if (xhr.status == 401) {
@@ -316,7 +358,6 @@ function token(div) {
                 t.getdate('http://localhost:8000/api/user/notes/')
                 removeElem(document.getElementById('con-popup-id'));
             } else if (xhr.status == 204 && xhr.responseURL.slice(0,43) == 'http://localhost:8000/api/user/note/delete/') {
-                console.log(xhr.responseURL.slice(0,43))
                 t.getdate('http://localhost:8000/api/user/notes/')
                 this.responseapi.push(xhr)
             }
@@ -447,6 +488,7 @@ function addNote(Y, M, D) {
                         <input type="button" value="BACK" id="input-back-popup">
                     </div>
                 </div>`
+    console.log('addddddddddddddddddddddddd')
     let popup = document.createElement('div')
     popup.setAttribute('id', 'con-popup-id')
     popup.setAttribute('class', 'con-popup')
