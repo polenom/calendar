@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content%}
+    {% if request.user.is_authenticated %}
+    <p><a href="{% url 'start' slug=request.user.username %}">{{request.user.username}}</a></p>
+    <p><a href="{% url 'logou' %}"> logout</a></p>
+    {% else %}
+    <p><a href="{% url 'reg' %}">Sing up</a></p>
+    <p><a href="{% url 'auth' %}">Sing in</a></p>
+    {% endif %}
+{% endblock %}

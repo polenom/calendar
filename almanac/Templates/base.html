@@ -14,13 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Source+Serif+Pro:wght@600&display=swap" rel="stylesheet">
 </head>
 <body>
-    {% if request.user.is_authenticated %}
-     <p><a href="{% url 'start' slug=request.user.username %}">{{request.user.username}}</a></p>
-    <p><a href="{% url 'logou' %}"> logout</a></p>
-    {% else %}
-    <p><a href="{% url 'reg' %}">Sing up</a></p>
-    <p><a href="{% url 'auth' %}">Sing in</a></p>
-    {% endif %}
+
     {% block content %}
     {% endblock %}
 </body>

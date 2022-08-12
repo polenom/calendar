@@ -137,7 +137,7 @@ function viewHolidaysAndNotes(day, month, year) {
                                                             return false
                                                             }).sort((a,b) => { return (new Date(a['startdate'])) - (new Date(b['startdate']))});
         for ( let i=0; i < mas.length; i++ ) {
-            res += `<div class="note" id="note-${i}">
+            res += `<div class="note" id="note-${i}" name="${mas[i]['id']}" >
                         <div class='row-3'>
                             <div>
                                 <label for="note-${i}-title">${i+1}) Title: </label>
@@ -164,10 +164,16 @@ function viewHolidaysAndNotes(day, month, year) {
     placeHotes.innerHTML = res
 }
 
+
+
 function deleteNote(elem, id) {
-    console.log('deleteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', id, elem)
     rqst.getdate(`http://localhost:8000/api/user/note/delete/${id}/`,{}, "DELETE")
     document.getElementById(elem).remove()
+    let titles =  document.querySelectorAll('.row-3 div:first-child label');
+    let num = 1;
+    for (let title of titles) {
+        title.innerHTML = num++ + title.innerHTML.slice(1,)
+    }
 }
 
 function changeNote(elem, id) {
@@ -176,7 +182,7 @@ function changeNote(elem, id) {
     let num = elem.slice(5)
     el.innerHTML = `<div class='row-3' id="row-3-note-${num}">
                         <div class="row-3-1">
-                            <label for="note-${num}-title">1) Title: </label>
+                            <label for="note-${num}-title">${+num+1}) Title: </label>
                             <input type="text" id="note-${num}-tile" name='title' value='${vl["title"]}'>
                         </div>
                         <div class="row-3-2">
@@ -209,6 +215,7 @@ function checkTwoObj(obj1, obj2) {
 }
 
 function saveChangeNote(elem, id) {
+    console.log('123')
     let vl = getObjFromId(id);
     let head = {};
     elem = document.getElementById(elem);
@@ -220,7 +227,7 @@ function saveChangeNote(elem, id) {
     if (elem.querySelector('textarea').value) {
             head[elem.querySelector('textarea').name] = elem.querySelector('textarea').value
     }
-    console.log(head)
+    console.log('456')
     if (checkTwoObj(vl, head)) {
         rqst.getdate(`http://localhost:8000/api/user/note/update/${id}/`, head, 'PUT')
     }
@@ -234,7 +241,7 @@ function backNotes(elem, id ) {
     document.getElementById(elem).innerHTML = `
                             <div class='row-3'>
                                 <div>
-                                    <label for="note-${i}-title">${i+1}) Title: </label>
+                                    <label for="note-${i}-title">${+i+1}) Title: </label>
                                     <span id="note-${i}-title">${vl['title']}</span>
                                 </div>
                                 <div>
@@ -333,7 +340,6 @@ function token(div) {
         }
         xhr.send(JSON.stringify(head))
         xhr.onload = function() {
-            console.log(xhr.responseURL.slice(0,43), xhr.status,'heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeed')
             if (xhr.status == 200 &&  xhr.responseURL == "http://localhost:8000/api/token/refresh/") {
                 let text= JSON.parse(xhr.response)
                 if (text['refresh'] && text['access']) {
@@ -348,7 +354,13 @@ function token(div) {
                 vl['startdate'] = head['startdate']
                 vl['finishdate'] = head['finishdate']
                 vl['description'] = head['description']
-                console.log(vl, head)
+                console.log( '1111111111111111')
+                for (let i of document.getElementById('notes-palace').childNodes) {
+                    if (i.getAttribute('name') == vl['id'] ) {
+                        backNotes(i.getAttribute('id'),  vl['id'])
+                        break;
+                    }
+                }
             } else if ( xhr.status == 200 ) {
                 this.responseapi.push(xhr)
             } else if (xhr.status == 401) {
@@ -358,7 +370,13 @@ function token(div) {
                 t.getdate('http://localhost:8000/api/user/notes/')
                 removeElem(document.getElementById('con-popup-id'));
             } else if (xhr.status == 204 && xhr.responseURL.slice(0,43) == 'http://localhost:8000/api/user/note/delete/') {
-                t.getdate('http://localhost:8000/api/user/notes/')
+                let num = xhr.responseURL.slice(43,47)
+                for (let i = 0; i<t.notes['markday'].length; i++) {
+                    if ( t.notes['markday'][i]['id'] == num) {
+                        t.notes['markday'].splice(i,1);
+                        break;
+                    }
+                }
                 this.responseapi.push(xhr)
             }
         }
@@ -400,6 +418,10 @@ function token(div) {
                 this.responseapi.splice(this.responseapi.indexOf(i),1)
                 renderCalendar()
                 return;
+            } else if (i.responseURL == url && i.responseURL.slice(0,43) == 'http://localhost:8000/api/user/note/update/') {
+                 this.responseapi.splice(this.responseapi.indexOf(i),1)
+            } else if (i.responseURL == url && i.responseURL.slice(0,43) == 'http://localhost:8000/api/user/note/delete/' ){
+                this.responseapi.splice(this.responseapi.indexOf(i),1)
             }
         }
     }

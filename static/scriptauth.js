@@ -1,4 +1,3 @@
-console.log('123');
 let reg = document.getElementById('reg');
 let button = document.getElementById('button-singin');
 let mes = document.getElementById('message')
@@ -6,14 +5,9 @@ let mes = document.getElementById('message')
 
 
 function Message(text) {
-    const newMes = document.createElement('p')
-    const buttonmes = document.createElement('button')
-    newMes.innerHTML = text
-    buttonmes.innerHTML = 'X'
-    buttonmes.id = 'button-message'
-    mes.appendChild(newMes)
-    mes.appendChild(buttonmes)
-    buttonmes.addEventListener('click', ()=> {buttonmes.remove() ; newMes.remove();});
+    mes.innerHTML = `<p>${text}</p>
+                     <i class="fa-solid fa-xmark" id='buttondelmes'></i>`
+    document.getElementById('buttondelmes').addEventListener('click', ()=> {mes.innerHTML = ''});
 }
 
 function registration(username, password) {
@@ -30,14 +24,11 @@ function registration(username, password) {
         if (post.status == 200) {
             localStorage['keyaccess'] = post.response['access'];
             localStorage['keyrefresh'] = post.response['refresh'];
-            localStorage['username'] = username
+            localStorage['username'] = username;
             location.replace(`/user/${username}/`)
         }
         else if (post.status == 401) {
-            console.log('message')
-            if ( !document.getElementById('button-message')) {
-                Message('User not authorization ')
-            }
+                Message('Username or password incorrect')
         }
 
     };
@@ -51,8 +42,12 @@ function registration(username, password) {
 function postapi() {
     let username = document.getElementById('floatingInput').value;
     let password = document.getElementById('floatingPassword').value;
-    registration(username, password);
+    if (username && password) {
+      registration(username, password);
+    } else {
+        Message('Input username and password')
+    }
 }
-
 button.addEventListener('click', postapi);
-console.log(localStorage);
+
+

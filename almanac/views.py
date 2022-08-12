@@ -20,5 +20,5 @@ class AuthJS(ListView):
 def one(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse('start', kwargs={'slug': request.user.username}))
-    return render(request, 'base.html', {})
+    return render(request, 'firstpage.html', {})
 
