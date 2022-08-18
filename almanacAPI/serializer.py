@@ -104,14 +104,21 @@ class MyTokenRefresh(TokenRefreshSerializer):
         return token
 
 
+class CountrySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Country
+        fields = ['countryname']
+
+
 class CustomUserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
     username = serializers.CharField()
     password = serializers.CharField(min_length=8, write_only=True)
-
+    country = serializers.RelatedField( read_only=True)
     class Meta:
         model = CustomUser
-        fields = ('email', 'username', 'password')
+        fields = ('email', 'username', 'password', 'country')
         # extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

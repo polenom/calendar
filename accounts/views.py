@@ -9,6 +9,7 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic.edit import FormView, CreateView
 from django.contrib.auth.forms import AuthenticationForm
 from accounts.form import UserRegForm, UserAuthForm
+from accounts.models import Country
 
 
 class RegForm(CreateView):
@@ -16,12 +17,12 @@ class RegForm(CreateView):
     form_class =  UserRegForm
     success_url = '/'
 
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['countries'] = Country.objects.all()
+        return  context
     def form_valid(self, form):
         self.object = form.save()
-        # CustomUser.objects.create(
-        #     user_id=self.object.pk
-        # )
         login(self.request, self.object, backend='django.contrib.auth.backends.ModelBackend')
         return HttpResponseRedirect(reverse_lazy('start', kwargs={'slug': self.object.username}))
 

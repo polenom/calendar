@@ -5,9 +5,33 @@
         <div class="message" id="message">
         </div>
         <form action="" method="post">
-            {% csrf_token %}
-            {{form.as_p}}
-            <p id="password-mes"></p>
+          {% csrf_token %}
+          {{form.as_p}}
+          <p>
+            <div class="countriesCountry">
+              <div class="countrymenu">
+                Country:
+              </div>
+              <div class="select-box">
+                <div class="options-container">
+                  {% for i in countries %}
+                  <div class="option">
+                    <input
+                    type="radio"
+                    name="{{i.countryname}}"
+                    id="{{i.countryname}}"
+                    >
+                    <label for="{{i.countryname}}">{{i.countryname}}</label>
+                  </div>
+                  {% endfor %}
+                </div>
+                <div class="selected">Select Country</div>
+                <div class="search-box">
+                  <input type="text" placeholder="Strat Typing...">
+                </div>
+              </div>
+            </div>
+          </p>
         </form>
         <div class="formauthbut">
           <input type="button" id="button-reg" disabled value="Sing Up"></button>
