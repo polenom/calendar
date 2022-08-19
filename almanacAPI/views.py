@@ -103,9 +103,7 @@ class CustomUserCreate(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request, format='json'):
-        print(request.data)
         serializer = CustomUserSerializer(data=request.data)
-        print(123)
         if serializer.is_valid():
             if CustomUser.objects.filter(username=serializer.validated_data['username']):
                 return Response({'message': 'user with the same name has already been created', 'error':'true'}, status=status.HTTP_400_BAD_REQUEST)

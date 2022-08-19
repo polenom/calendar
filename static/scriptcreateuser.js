@@ -52,7 +52,7 @@ function messageSent(text) {
     message.lastElementChild.addEventListener('click', ()=> message.innerHTML = '')
 }
 
-function app() {
+async function app() {
     if (!checkfields) {
         return
     }
@@ -63,39 +63,37 @@ function app() {
             "password": password1.value,
             "country": search.innerHTML
         };
-    fetch(url, {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify(head);
-                    }).then(res=> if ( res.status) return res.json).then(res=> console.log(res))
+    try {
+        let r = await fetch(url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(head),
+                })
+        console.log(r.status , 'status')
+        if (r.status <300 && r.status >= 200) {
+            let a = await r.json();
+            localStorage['keyaccess'] = a['access'];
+            localStorage['keyrefresh'] = a['refresh'];
+            localStorage['username'] = a['username'];
+            location.replace(`/user/${localStorage['username']}/`)
+
+        } else if ( r.status === 400) {
+            let res = await r.json();
+            let text= ''
+            for (let i of Object.keys(res)) {
+                text += `${i}: ${res[i]}\n`
+            }
+            messageSent(text)
+        } else {
+            messageSent("Serves don't available")
+        }
+    } catch {
+        messageSent("Serves don't available")
+    }
 }
 
-
-//function app() {
-//    const url = 'http://localhost:8000/api/user/create/';
-//    const head = {
-//        "username": fieldUsername.value,
-//        "email": email.value,
-//        "password": password1.value
-//    };
-//    connect(url, "POST", head)
-//}
-
-
-
-//function connect(url, method, head){
-//    const conPost = new XMLHttpRequest();
-//    conPost.open(method, url, true)
-//    conPost.setRequestHeader("Content-Type", "application/json");
-//    conPost.responseType = 'json';
-//    conPost.onload = () =>{
-//        response.push(conPost);
-//    }
-//    conPost.send(JSON.stringify(head));
-//
-//}
 
 
 function checkusername() {
@@ -106,6 +104,7 @@ function checkusername() {
     let sent =  function(e) {
         if (e === 'delete') {
             qe--
+            console.log(qe, 'qe')
             if (qe == 0) {
                 time = new Date();
                 text= 0;
@@ -115,6 +114,7 @@ function checkusername() {
                 if (sent.cash.has(fieldUsername.value)) {
                   messageSent(`Name ${sent.cash.get(fieldUsername.value)?'not':''} free`)
                 } else {
+                 console.log('sent request ' , fieldUsername.value)
                  fetch('http://localhost:8000/api/user/check/', {
                       method: 'POST',
                       headers: {
@@ -139,6 +139,9 @@ function checkusername() {
             qe++
             setTimeout(()=> {
             checkUserNameSent('delete')} , 1100)
+        } else {
+            setTimeout(()=> {
+            checkUserNameSent()} , 500)
         }
          text = fieldUsername.value
          time = timeNow;
@@ -150,28 +153,6 @@ function checkusername() {
 let checkUserNameSent = checkusername();
 fieldUsername.addEventListener('keyup', (e)=>checkUserNameSent(e))
 
-
-
-//function checkResponse() {
-//    if (response) {
-//       for (let i = 0; i < response.length; i++)
-//       {
-//           if (response[i].responseURL == "http://localhost:8000/api/user/check/") {
-//                if( response[i].status == 200) {
-//                    message.innerHTML = response[i].response['status']? 'username busy': 'username free'
-//                    user = response[i].response['status']?false:true;
-//                    response.splice(i,1);
-//                }
-//           } else if (response[i].responseURL == "http://localhost:8000/api/user/create/" && response[i].status == 201) {
-//                    console.log(response[i])
-//                    localStorage['keyaccess'] = response[i].response['access'];
-//                    localStorage['keyrefresh'] = response[i].response['refresh'];
-//                    localStorage['username'] = response[i].response['username'];
-//                    location.replace(`/user/${localStorage['username']}/`)
-//                }
-//       }
-//    }
-//}
 
 password1.addEventListener('keyup', (e)=>checkPassword(e))
 password2.addEventListener('keyup', (e)=>checkPassword(e))
@@ -187,7 +168,6 @@ function checkPassword() {
 }
 
 function checkfields() {
-    console.log(search.innerHTML != 'Select Country')
     if (
         password1.value &&
         password2.value &&
