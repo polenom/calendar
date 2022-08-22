@@ -12,7 +12,8 @@ from rest_framework.views import APIView
 
 from almanac.models import HolidayCountry, MarketDay
 from almanacAPI.serializer import UserSerializer, MyToken, CustomUserSerializer, MyTokenRefresh, UsernameSerializer, \
-    HolidayCountrySerializer, HolidayCountyrDateSerializer, NotesSerializer, UserForNotesSerializer, NoteAddSerializer
+    HolidayCountrySerializer, HolidayCountyrDateSerializer, NotesSerializer, UserForNotesSerializer, NoteAddSerializer, \
+    getUserSerializer
 from almanacAPI.permissions import IsOwnerOrAdmin, IsLoginOnly, IsHaveObj
 from accounts.models import CustomUser, Country
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -96,6 +97,14 @@ class MyRefreshToken(TokenRefreshView):
     permission_classes = (IsLoginOnly,)
     serializer_class = MyTokenRefresh
 
+
+class GetUser(generics.RetrieveUpdateAPIView):
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = getUserSerializer
+    queryset = CustomUser.objects.all()
+
+    def get_object(self):
+        return get_object_or_404(CustomUser, username=self.kwargs.get('name'))
 
 
 

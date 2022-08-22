@@ -129,6 +129,38 @@ class CustomUserSerializer(serializers.ModelSerializer):
             instance.save()
         return instance
 
+
+class nameCountrySerializer(serializers.ModelSerializer):
+
+
+    def to_representation(self, instance):
+        print(instance,123)
+        return super().to_representation(instance)
+    class Meta:
+        model = Country
+        fields = ['countryname']
+
+
+class getUserSerializer(serializers.ModelSerializer):
+    country = serializers.CharField(source='country.countryname')
+    username = serializers.CharField(read_only=True)
+
+    def update(self, instance, validated_data):
+        if validated_data.get('country', {}).get('countryname', None):
+            try:
+                country = Country.objects.get(countryname=validated_data.get('country').get('countryname'))
+                instance.country = country
+            except Country.DoesNotExist:
+                pass
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.email = validated_data.get('email', instance.email)
+        instance.save()
+        return  instance
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email', 'country', 'first_name', 'last_name']
+
 class UsernameSerializer(serializers.Serializer):
 
     username = serializers.CharField()

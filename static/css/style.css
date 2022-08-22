@@ -342,12 +342,14 @@ html {
   }
 }
 
+.containernav .button:hover,
 .formauthbut > input:hover,
 .row-1 > input:hover,
 .row-button > input:hover {
   animation: but 0.1s 0s 1 normal forwards;
 }
 
+.containernav .button:active,
 .formauthbut > input:active,
 .row-1 > input:active,
 .row-button > input:active {
@@ -426,7 +428,7 @@ html {
 
 .select-box .selected::after {
   content: "";
-  background-image: url('/static/img/down_arrow.svg');
+  background-image: url('img/down_arrow.svg');
   background-size: contain;
   background-repeat: no-repeat;
   position: absolute;
@@ -441,8 +443,9 @@ html {
   padding: 12px 24px;
   cursor: pointer;
 }
-
-.message i,
+.menu > div:hover,
+.inputuserval > div:last-child:hover,
+.containernav .button,
 .search-box input,
 .select-box .selected:hover {
   cursor: pointer;
@@ -514,3 +517,75 @@ html {
   cursor: pointer;
 }
 
+.containernav {
+  background-color: rgb(91, 46, 109);
+  margin-bottom: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: row-reverse;
+  font-family: "Quicksand", sans-serif;
+  color: #eee;
+  font-size: 2rem;
+  font-weight: 600;
+  text-shadow: 0.1rem 0.1rem rgba(0, 0, 0, 0.5);
+}
+
+.containernav .menu {
+  position: absolute;
+  right: 20px;
+  background-color: rgb(91, 46, 109);
+  top: 45px;
+  display: none;
+}
+.containernav .menu > div {
+  width: 100%;
+  height: 50px;
+}
+
+
+.inputuserpass {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.inputuserpass input {
+  margin: 10px ;
+  height: 3rem;
+  font-size: 2rem;
+  font-family: "Quicksand", sans-serif;
+  font-weight: 500;
+}
+
+.containernav .button {
+  height: 3rem;
+  width: 10rem;
+  margin: 0 15px;
+  cursor: pointer;
+  background-color: #8892ec73;
+  font-size: 1.4rem;
+  font-weight: 400;
+  text-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.5);
+  box-shadow: 0.2rem 0.4rem rgba(0, 0, 0, 0.6);
+  border: 1px solid black;
+}
+
+.inputuserval {
+  display: flex;
+  margin-right: 10px;
+}
+
+.inputuserval div:not(.menu) {
+  padding: 10px 12px;
+  margin-right: 10px;
+}
+
+.menu div:hover,
+.inputuserval div:last-child:hover {
+  background-color:  rgb(74, 22, 95);
+}
+
+.clickprofile.inputuserval .menu{
+  display: flex;
+  flex-direction: column;
+}
