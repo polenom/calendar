@@ -5,21 +5,21 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse
 from django.urls import reverse_lazy, reverse
-
+from almanac.utils import DateCountryMixin
 from django.views.generic.edit import FormView, CreateView
 from django.contrib.auth.forms import AuthenticationForm
 from accounts.form import UserRegForm, UserAuthForm
 from accounts.models import Country
 
 
-class RegForm(CreateView):
+class RegForm(DateCountryMixin,CreateView):
     template_name = 'register.html'
     form_class =  UserRegForm
     success_url = '/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['countries'] = Country.objects.all()
+        context = self.get_county_context(context)
         return  context
     def form_valid(self, form):
         self.object = form.save()

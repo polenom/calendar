@@ -99,13 +99,10 @@ class MyRefreshToken(TokenRefreshView):
 
 
 class GetUser(generics.RetrieveUpdateAPIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsHaveObj,)
     serializer_class = getUserSerializer
     queryset = CustomUser.objects.all()
-
-    def get_object(self):
-        return get_object_or_404(CustomUser, username=self.kwargs.get('name'))
-
+    lookup_field= "username"
 
 
 class CustomUserCreate(APIView):

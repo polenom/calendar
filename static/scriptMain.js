@@ -1,3 +1,4 @@
+const user = {};
 const date = new Date();
 const sleep = ms => new Promise(ms => setTimeout(r, ms))
 const placeHolidays = document.getElementById('holidays')
@@ -530,7 +531,6 @@ function sendNote(elem) {
     if (elem.querySelector('textarea').value) {
             head[elem.querySelector('textarea').name] = elem.querySelector('textarea').value
     }
-    console.log(head)
     if ( Object.keys(head).length == 4) {
         rqst.getdate(`http://localhost:8000/api/user/note/add/${(new Date()).getTime()}/`, head, 'POST');
     }
@@ -548,7 +548,45 @@ function getTokenFromCookie() {
     }
 }
 
+async function requestF(url, method, base, auth) {
+    let res;
+    if (method == "GET") {
+        res = await fetch(url,{
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': auth
+            },
+        } );
+    } else {
+        res = await fetch(url,{
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': auth
+            },
+            body: JSON.stringify(base)
+        } )
+    }
+    if (res.url == `http://localhost:8000/api/user/get/${localStorage['username']}/` && res.status == 200 && method == "GET" ) {
+        let obj = await res.json()
+        for (let i of Object.keys(obj)) {
+            user[i] = obj[i]
+        }
+        document.getElementById('countryMenu').innerHTML = 'Country: ' + user.country
+        let butUs = document.getElementById('usernameMenu')
+        butUs.innerHTML = 'Username: ' + user.username
+        butUs.addEventListener('click', ()=>{ document.querySelector('.inputuserval').classList.toggle('clickprofile') })
+    }
+}
+
+
 getTokenFromCookie()
+requestF(`http://localhost:8000/api/user/get/${localStorage['username']}/`,
+        "GET",
+        '' ,
+        'tk '+localStorage['keyaccess']
+    )
 let rqst = new token(holidays);
 rqst.getdate((r)=>  {return `http://localhost:8000/api/country/holidays/${r['country']}/`});
 rqst.getdate('http://localhost:8000/api/user/notes/');

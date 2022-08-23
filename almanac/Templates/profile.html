@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container">
+      <div class="formauth popup">
+        <div class="message" id="message">
+        </div>
+        <form action="" method="post">
+          <p>
+            <label for="username">Username:</label>
+            <input type="text" name="username" class="form-control" id="username" disabled value="123">
+          </p>
+          <p>
+            <label for="firstname">Firstname:</label>
+            <input type="text" name="username" class="form-control" id="firstname" >
+          </p>
+          <p>
+            <label for="lastname">Lastname:</label>
+            <input type="text" name="username" class="form-control" id="lastname" >
+          </p>
+           <p>
+            <label for="email">Email:</label>
+            <input type="text" name="username" class="form-control" id="email" >
+          </p>
+          <p>
+            <div class="countriesCountry">
+              <div class="countrymenu">
+                Country:
+              </div>
+              <div class="select-box">
+                <div class="options-container">
+                  {% for i in countries %}
+                  <div class="option">
+                    <input
+                    type="radio"
+                    name="{{i.countryname}}"
+                    id="{{i.countryname}}"
+                    >
+                    <label for="{{i.countryname}}">{{i.countryname}}</label>
+                  </div>
+                  {% endfor %}
+                </div>
+                <div class="selected">Country</div>
+                <div class="search-box">
+                  <input type="text" placeholder="Strat Typing...">
+                </div>
+              </div>
+            </div>
+          </p>
+        </form>
+        <div class="formauthbut">
+          <input type="button" id="button-save"  value="Save"></button>
+          <input type="button" id="button-back" class="" value="Back">
+        </div>
+      </div>
+    </div>
+  <script src="/static/scriptprofile.js"></script>
+{% endblock %}

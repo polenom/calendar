@@ -39,8 +39,12 @@ class IsLoginOnly(permissions.BasePermission):
         return False
 
 class IsHaveObj(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_authenticated and request.method in ['GET','POST', 'PUT', 'PATCH']:
+            return True
+        return False
     def has_object_permission(self, request, view, obj):
-        if request.user.pk == obj.user_id:
+        if request.user.pk == obj.pk:
             return True
         return False
 
