@@ -14,7 +14,7 @@ from almanac.models import HolidayCountry, MarketDay
 from almanacAPI.serializer import UserSerializer, MyToken, CustomUserSerializer, MyTokenRefresh, UsernameSerializer, \
     HolidayCountrySerializer, HolidayCountyrDateSerializer, NotesSerializer, UserForNotesSerializer, NoteAddSerializer, \
     getUserSerializer
-from almanacAPI.permissions import IsOwnerOrAdmin, IsLoginOnly, IsHaveObj
+from almanacAPI.permissions import IsOwnerOrAdmin, IsLoginOnly, IsHaveObj, IsHaveObjDelete
 from accounts.models import CustomUser, Country
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -49,7 +49,7 @@ class UserNoteUpdate(generics.UpdateAPIView):
 
 
 class UserNoteDelete( generics.DestroyAPIView):
-    permission_classes = (IsHaveObj,)
+    permission_classes = (IsHaveObjDelete,)
     serializer_class = NotesSerializer
     queryset = MarketDay.objects.all()
 

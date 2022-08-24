@@ -590,3 +590,44 @@ html {
   display: flex;
   flex-direction: column;
 }
+
+.containerNot {
+  position: fixed;
+  right: 40px;
+  bottom: 20px;
+}
+
+.notifition {
+  background-color: #53dbc9ec;
+  min-width: 350px;
+  min-height: 200px;
+  font-size: 20px;
+  display: flex;
+}
+
+.notifition i {
+  display: inline-block;
+  font-size: 3rem;
+  padding-left: 35px;
+  padding-top: 10px;
+  cursor: pointer;
+}
+
+.nottext {
+  display: flex;
+  flex-direction: column;
+
+}
+
+.nottext > div {
+  margin: 20px 20px;
+  font-weight: 500;
+  color: #171a3b;
+}
+
+.notifition .notitime {
+  color: #ce3636;
+}
+.notifition .notititle {
+  color: #9636ce;
+}

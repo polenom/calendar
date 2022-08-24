@@ -1,4 +1,5 @@
 const butReg = document.getElementById('button-reg');
+const butBac = document.getElementById('button-back')
 const fieldUsername = document.getElementById('floatingInput');
 const response  = [];
 const message = document.getElementById('message');
@@ -10,6 +11,11 @@ const search = document.querySelector('.selected');
 const option = document.querySelector('.options-container');
 const inputbox = document.querySelector('.search-box');
 const searchBox = document.querySelector(".search-box input");
+
+
+butBac.addEventListener('click', ()=> document.location.href='http://localhost:8000/')
+
+
 option.querySelectorAll('div').forEach(a=>{
     a.addEventListener('click', (e)=>{
         search.innerHTML = a.querySelector('label').innerHTML

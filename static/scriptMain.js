@@ -167,14 +167,35 @@ function viewHolidaysAndNotes(day, month, year) {
 
 
 
-function deleteNote(elem, id) {
-    rqst.getdate(`http://localhost:8000/api/user/note/delete/${id}/`,{}, "DELETE")
-    document.getElementById(elem).remove()
-    let titles =  document.querySelectorAll('.row-3 div:first-child label');
-    let num = 1;
-    for (let title of titles) {
-        title.innerHTML = num++ + title.innerHTML.slice(1,)
-    }
+async function deleteNote(elem, id) {
+    await fetch(`http://localhost:8000/api/user/note/delete/${id}/`, {
+            method: "DELETE",
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'tk ' + localStorage['keyaccess']
+            }
+        })
+        .then(res=> {
+            if (res.status == 204) {
+                document.getElementById(elem).remove()
+                let titles =  document.querySelectorAll('.row-3 div:first-child label');
+                let num = 1;
+                for (let title of titles) {
+                    title.innerHTML = num++ + title.innerHTML.slice(1,)
+                }
+                for (let i = 0; i < rqst.notes['markday'].length; i++) {
+                    if ( rqst.notes['markday'][i]['id'] == id) {
+                        rqst.notes['markday'].splice(i,1);
+                        break;
+                    }
+                }
+                renderCalendar()
+            } else {
+                throw "123"
+            }
+        })
+        .catch(err=> console.log("No delete object"));
+        console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD');
 }
 
 function changeNote(elem, id) {
@@ -370,15 +391,6 @@ function token(div) {
                 this.responseapi.push(xhr)
                 t.getdate('http://localhost:8000/api/user/notes/')
                 removeElem(document.getElementById('con-popup-id'));
-            } else if (xhr.status == 204 && xhr.responseURL.slice(0,43) == 'http://localhost:8000/api/user/note/delete/') {
-                let num = xhr.responseURL.slice(43,47)
-                for (let i = 0; i<t.notes['markday'].length; i++) {
-                    if ( t.notes['markday'][i]['id'] == num) {
-                        t.notes['markday'].splice(i,1);
-                        break;
-                    }
-                }
-                this.responseapi.push(xhr)
             }
         }
         xhr.onerror = function() {
@@ -395,7 +407,7 @@ function token(div) {
     }
 
     this.getCountry = function() {
-        this.country = JSON.parse(atob(localStorage['keyrefresh'].split('.')[1]))['country']
+        this.country = user.country
         return this.country
     }
 
@@ -421,8 +433,6 @@ function token(div) {
                 return;
             } else if (i.responseURL == url && i.responseURL.slice(0,43) == 'http://localhost:8000/api/user/note/update/') {
                  this.responseapi.splice(this.responseapi.indexOf(i),1)
-            } else if (i.responseURL == url && i.responseURL.slice(0,43) == 'http://localhost:8000/api/user/note/delete/' ){
-                this.responseapi.splice(this.responseapi.indexOf(i),1)
             }
         }
     }

@@ -8,6 +8,7 @@ const lastname = document.getElementById('lastname')
 const email = document.getElementById('email')
 const butSave = document.getElementById('button-save')
 const butBack = document.getElementById('button-back')
+const message = document.getElementById('message');
 
 butBack.addEventListener('click', ()=>{document.location.href = `http://localhost:8000/user/${localStorage['username']}`})
 
@@ -148,14 +149,26 @@ async function saveChange() {
         },
         body: JSON.stringify(body)
     })
-    if (res.status == 200) {
-        let date = await res.json()
-        for (let i of Object.keys(date)) {
-            user[i] = date[i]
-        }
-        sendMessage('Change saved')
-    }
+    .then(res => {
+            if (res.status = 200) {
+            return res.json()
+            }
+        })
+    .then(date => {
+            for (let i of Object.keys(date)) {
+                user[i] = date[i]
+            }
+            messageSent('Change saved')
+        })
+    .catch(err=> messageSent('Server not available'))
 
+
+}
+
+function messageSent(text) {
+    message.innerHTML = `<p>${text}</p>
+                        <i class="fa-solid fa-xmark"></i>`
+    message.lastElementChild.addEventListener('click', ()=> message.innerHTML = '')
 }
 
 
