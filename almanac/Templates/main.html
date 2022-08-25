@@ -1,55 +1,58 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div class="containernav">
-        <div class="inputuserval">
-            <div class="menu">
-                <div>
-                    <a href="{% url 'profile' %}">change profile</a>
-                </div>
-                <div>
-                    logout
-                </div>
+<div class="containernav">
+    <div class="inputuserval">
+        <div class="menu">
+            <div>
+                <a href="{% url 'profile' %}">change profile</a>
             </div>
-            <div id="countryMenu">
-                Country:
+            <div>
+                logout
             </div>
-            <div id="usernameMenu">
-                Username:
+        </div>
+        <div id="countryMenu">
+            Country:
+        </div>
+        <div id="usernameMenu">
+            Username:
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="calendar">
+        <div class="month">
+            <i class="fas fa-angle-left prev"></i>
+            <div class="date">
+                <h1></h1>
+                <p></p>
+            </div>
+            <i class="fas fa-angle-right next"></i>
+        </div>
+        <div class="weekdays">
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+            <div>Sun</div>
+        </div>
+        <div class="days">
+        </div>
+    </div>
+    <div class="review">
+        <div class="output">
+            <h3> HOLIDAYS COUNTRY </h3>
+            <div class="holidays" id="holidays">
+            </div>
+            <h3> review </h3>
+            <div class="notes" id="notes-palace">
             </div>
         </div>
     </div>
-    <div class="container">
-        <div class="calendar">
-            <div class="month">
-                <i class="fas fa-angle-left prev"></i>
-                <div class="date">
-                    <h1></h1>
-                    <p></p>
-                </div>
-                <i class="fas fa-angle-right next"></i>
-            </div>
-            <div class="weekdays">
-                <div>Mon</div>
-                <div>Tue</div>
-                <div>Wed</div>
-                <div>Thu</div>
-                <div>Fri</div>
-                <div>Sat</div>
-                <div>Sun</div>
-            </div>
-            <div class="days">
-            </div>
-        </div>
-        <div class="review">
-            <div class="output">
-                <h3> HOLIDAYS COUNTRY </h3>
-                <div class="holidays" id="holidays" >
-                </div>
-                <h3> review </h3>
-                <div class="notes" id="notes-palace">
-                </div>
-            </div>
-        </div>
-    </div>
-    <script src="/static/scriptMain.js"></script>
+</div>
+<div class="containerNot">
+    
+</div>
+<script src="/static/scriptMain.js"></script>
 {% endblock %}

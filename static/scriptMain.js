@@ -1,4 +1,6 @@
 const user = {};
+const notesTimeout = {};
+const notesElem = document.querySelector('.containerNot')
 const date = new Date();
 const sleep = ms => new Promise(ms => setTimeout(r, ms))
 const placeHolidays = document.getElementById('holidays')
@@ -195,7 +197,6 @@ async function deleteNote(elem, id) {
             }
         })
         .catch(err=> console.log("No delete object"));
-        console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD');
 }
 
 function changeNote(elem, id) {
@@ -237,7 +238,6 @@ function checkTwoObj(obj1, obj2) {
 }
 
 function saveChangeNote(elem, id) {
-    console.log('123')
     let vl = getObjFromId(id);
     let head = {};
     elem = document.getElementById(elem);
@@ -296,6 +296,57 @@ function getObjFromId(id) {
         }
     }
     return undefined
+}
+
+function createNoteInPage(text, timebefore, id ) {
+    if (notesElem.children.length == 0) {
+        let textNoti = `
+        <div class="notifition">
+            <div class="row-3 nottext">
+                <div name='${id}'>
+                    ${text}:
+                    <span class="notitime">${timebefore}</span>
+                </div>
+            </div>
+            <i class="fa-solid fa-xmark row-1"></i>
+        </div>
+        `
+        notesElem.innerHTML = textNoti
+        notesElem.querySelector('i').addEventListener('click', ()=>(notesElem.innerHTML = ''))
+    } else {
+        for (let i of notesElem.querySelectorAll('.row-3.nottext > div')) {
+            if (i.getAttribute('name') == id) {
+                return
+            }
+        }
+        notesElem.querySelector('.row-3.nottext').insertAdjacentHTML('beforeend', `<div name='${id}'>
+                                                                                    ${text}:
+                                                                                    <span class="notitime">${timebefore}</span>
+                                                                                    </div>
+                                                                                    `)
+    }
+}
+
+function createNotes(notes) {
+    let nowdate = new Date();
+    console.log(nowdate, 'now date')
+    for (let note of notes){
+        let dateNote = new Date(note.startdate.slice(0,-1))
+        if ( nowdate.getTime() <= (dateNote.getTime() - 15000) &&
+             nowdate.getTime() >= (dateNote.getTime() - 86400000)
+        ) {
+            let deltatime = dateNote.getTime() - nowdate.getTime();
+            notesTimeout[note.id] ={
+                timeout: [],
+                startdate: note.startdate,
+            }
+            for (let i of [15000, 30000, 60000]) {
+                if( (deltatime - i) >= 0) {
+                    notesTimeout[note.id].timeout.push(setTimeout(()=>createNoteInPage(note.title, '15 min left', note.id), i))
+                }
+            }
+        }
+    }
 }
 
 
@@ -429,6 +480,7 @@ function token(div) {
             } else if ( i.responseURL == url && url== 'http://localhost:8000/api/user/notes/') {
                 this.notes = JSON.parse(i.response)
                 this.responseapi.splice(this.responseapi.indexOf(i),1)
+                createNotes(this.notes['markday'])
                 renderCalendar()
                 return;
             } else if (i.responseURL == url && i.responseURL.slice(0,43) == 'http://localhost:8000/api/user/note/update/') {
@@ -467,11 +519,6 @@ function token(div) {
         } else {
         time = 2;}
         this.getCountry();
-        if (typeof urldate === 'function' && this.country ) {
-                urldate = urldate(this);
-            } else if ( this.country === '') {
-                return
-            }
         if ( !this.checkresponse(urldate)) {
             console.log(urldate, time)
             if (time == 2 ) {
@@ -583,6 +630,7 @@ async function requestF(url, method, base, auth) {
         for (let i of Object.keys(obj)) {
             user[i] = obj[i]
         }
+        rqst.getdate(`http://localhost:8000/api/country/holidays/${user.country}/`);
         document.getElementById('countryMenu').innerHTML = 'Country: ' + user.country
         let butUs = document.getElementById('usernameMenu')
         butUs.innerHTML = 'Username: ' + user.username
@@ -598,7 +646,7 @@ requestF(`http://localhost:8000/api/user/get/${localStorage['username']}/`,
         'tk '+localStorage['keyaccess']
     )
 let rqst = new token(holidays);
-rqst.getdate((r)=>  {return `http://localhost:8000/api/country/holidays/${r['country']}/`});
+
 rqst.getdate('http://localhost:8000/api/user/notes/');
 renderCalendar();
 
