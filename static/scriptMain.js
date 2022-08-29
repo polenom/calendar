@@ -130,15 +130,19 @@ function viewHolidaysAndNotes(day, month, year) {
     placeHolidays.innerHTML = res
     res = ''
     if (rqst.notes) {
-
-        let mas = rqst.notes['markday'].filter(a => { if (a['startdate'].slice(0,4) >= year && a['finishdate'].slice(0,4) <= year &&
-                                                               a['startdate'].slice(5,7) >= month && a['finishdate'].slice(5,7) <= month &&
-                                                               a['startdate'].slice(8,10) >= day && a['finishdate'].slice(8,10) <= day
-                                                            ) {
-                                                                return true
-                                                            }
-                                                            return false
-                                                            }).sort((a,b) => { return (new Date(a['startdate'])) - (new Date(b['startdate']))});
+        console.log(year, month, day)
+        let mas = rqst.notes['markday']
+                  .filter(a => {
+                                if (a['startdate'].slice(0,4) == year &&
+                                   a['startdate'].slice(5,7) == month &&
+                                   a['startdate'].slice(8,10) == day
+                                  ) {
+                                        return true
+                                    }
+                                  return false
+                                  })
+                  .sort((a,b) => { return (new Date(a['startdate'])) - (new Date(b['startdate']))});
+        console.log(mas)
         for ( let i=0; i < mas.length; i++ ) {
             res += `<div class="note" id="note-${i}" name="${mas[i]['id']}" >
                         <div class='row-3'>
@@ -197,12 +201,17 @@ async function deleteNote(elem, id) {
             }
         })
         .catch(err=> console.log("No delete object"));
+    if (notesTimeout[id] !== undefined) {
+        notesTimeout[id].timeout.forEach(e=> clearTimeout(e))
+        delete notesTimeout[id]
+    }
 }
 
 function changeNote(elem, id) {
     let el = document.getElementById(elem)
     let vl = getObjFromId(id);
     let num = elem.slice(5)
+
     el.innerHTML = `<div class='row-3' id="row-3-note-${num}">
                         <div class="row-3-1">
                             <label for="note-${num}-title">${+num+1}) Title: </label>
@@ -249,7 +258,6 @@ function saveChangeNote(elem, id) {
     if (elem.querySelector('textarea').value) {
             head[elem.querySelector('textarea').name] = elem.querySelector('textarea').value
     }
-    console.log('456')
     if (checkTwoObj(vl, head)) {
         rqst.getdate(`http://localhost:8000/api/user/note/update/${id}/`, head, 'PUT')
     }
@@ -281,10 +289,8 @@ function backNotes(elem, id ) {
                                 <input type="button" onclick='changeNote("note-${i}",${vl['id']})' value="change">
                                 <input type="button" value="del" onclick='deleteNote("note-${i}",${vl["id"]})'>
                             </div>
-
-
     `
-
+    changeNoteTimeout(vl)
 }
 
 function getObjFromId(id) {
@@ -327,22 +333,56 @@ function createNoteInPage(text, timebefore, id ) {
     }
 }
 
+
+function changeNoteTimeout(obj) {
+    let dateNow = new Date();
+    let dateNote = new Date(obj.startdate.slice(0,19));
+    let deltatime = dateNote - dateNow;
+    console.log(deltatime, 1111111111111111111111111111111111111111)
+    if( deltatime >= 900000 &&
+        deltatime <= 86402000) {
+        console.log(deltatime)
+        if (notesTimeout[obj.id] === undefined) {
+                notesTimeout[obj.id] ={
+                                            timeout: [],
+                                            startdate: obj.startdate,
+                                        }
+        } else if ( notesTimeout[obj.id].startdate !== obj.startdate  ) {
+            let timeObj = notesTimeout[obj.id]
+            timeObj.timeout.forEach(e=>clearTimeout(e))
+            timeObj.timeout = []
+            timeObj.startdate = obj.stardate
+        }
+
+    } else if ( notesTimeout[obj.id] ) {
+        notesTimeout[obj.id].timeout.forEach(e=>clearTimeout(e))
+        delete notesTimeout[obj.id]
+    }
+    if ( notesTimeout[obj.id] && notesTimeout[obj.id].timeout.length === 0 ) {
+         for (let i of [[900000,'15 min left'], [14400000,'4 hours left'], [86400000,'1 day left']]) {
+                if( (deltatime - i[0]) >= 0) {
+                    console.log(deltatime - i[0], i )
+                    notesTimeout[obj.id].timeout.push(setTimeout(()=>{createNoteInPage(obj.title, i[1], obj.id)}, deltatime - i[0]))
+                }
+         }
+    }
+}
+
 function createNotes(notes) {
     let nowdate = new Date();
-    console.log(nowdate, 'now date')
     for (let note of notes){
         let dateNote = new Date(note.startdate.slice(0,-1))
-        if ( nowdate.getTime() <= (dateNote.getTime() - 15000) &&
+        if ( nowdate.getTime() <= (dateNote.getTime() - 900000) &&
              nowdate.getTime() >= (dateNote.getTime() - 86400000)
         ) {
             let deltatime = dateNote.getTime() - nowdate.getTime();
             notesTimeout[note.id] ={
-                timeout: [],
-                startdate: note.startdate,
-            }
-            for (let i of [15000, 30000, 60000]) {
-                if( (deltatime - i) >= 0) {
-                    notesTimeout[note.id].timeout.push(setTimeout(()=>createNoteInPage(note.title, '15 min left', note.id), i))
+                                        timeout: [],
+                                        startdate: note.startdate,
+                                    }
+            for (let i of [[900000,'15 min left'], [14400000,'4 hours left'], [86400000,'1 day left']]) {
+                if( (deltatime - i[0]) >= 0) {
+                    notesTimeout[note.id].timeout.push(setTimeout(()=>{console.log(i[0]); createNoteInPage(note.title, i[1], note.id)}, deltatime - i[0]))
                 }
             }
         }
@@ -427,13 +467,14 @@ function token(div) {
                 vl['startdate'] = head['startdate']
                 vl['finishdate'] = head['finishdate']
                 vl['description'] = head['description']
-                console.log( '1111111111111111')
+                changeNoteTimeout(vl)
                 for (let i of document.getElementById('notes-palace').childNodes) {
                     if (i.getAttribute('name') == vl['id'] ) {
                         backNotes(i.getAttribute('id'),  vl['id'])
                         break;
                     }
                 }
+                renderCalendar()
             } else if ( xhr.status == 200 ) {
                 this.responseapi.push(xhr)
             } else if (xhr.status == 401) {

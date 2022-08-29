@@ -40,13 +40,11 @@ class IsLoginOnly(permissions.BasePermission):
 
 class IsHaveObj(permissions.BasePermission):
     def has_permission(self, request, view):
-        print('1', request.user.username)
         if request.user.is_authenticated and request.method in ['GET','POST', 'PUT', 'PATCH']:
             return True
         print('2')
         return False
     def has_object_permission(self, request, view, obj):
-        print(3, obj.pk , request.user.pk)
         if request.user.pk == obj.pk:
             return True
         return False
@@ -64,10 +62,9 @@ class IsHaveObjPP(permissions.BasePermission):
 
 class IsHaveObjDelete(permissions.BasePermission):
     def has_permission(self, request, view):
-        print('1')
         if request.user.is_authenticated and request.method == "DELETE":
             return True
-        print('2')
+
         return False
     def has_object_permission(self, request, view, obj):
         if request.user.pk == obj.user_id:
