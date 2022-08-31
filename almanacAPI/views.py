@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from almanac.models import HolidayCountry, MarketDay
+from almanac.tasks import send_notes_left
 from almanacAPI.serializer import UserSerializer, MyToken, CustomUserSerializer, MyTokenRefresh, UsernameSerializer, \
     HolidayCountrySerializer, HolidayCountyrDateSerializer, NotesSerializer, UserForNotesSerializer, NoteAddSerializer, \
     getUserSerializer
@@ -128,6 +129,8 @@ class CheckUserCreate(APIView):
     permission_classes = [permissions.AllowAny]
     def post(self, request, format='json'):
         serializer = UsernameSerializer(data=request.data)
+        send_notes_left.delay()
+        print(request.data)
         if serializer.is_valid():
             try:
                 CustomUser.objects.get(username = serializer.validated_data['username'])

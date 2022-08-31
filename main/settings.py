@@ -10,10 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os
+import dotenv
 from pathlib import Path
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+import django.core.mail.backends.smtp
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -25,6 +28,8 @@ SECRET_KEY = 'django-insecure-1qq8t+lp2jypwk9p6b$8w=mh!zn!)9x&)i0@!lkrkhemcuzkfx
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+dotenv.load_dotenv('.env')
 
 ALLOWED_HOSTS = [
     '192.168.13.248',
@@ -197,3 +202,20 @@ SIMPLE_JWT = {
 }
 
 LOGIN_URL='/admin/login/'
+
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'vitalimit88@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_KEY']
+
+
+REDIS_HOST = '0.0.0.0'
+REDIS_PORT = '6379'
+CELERY_BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT +'/0'
+CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT +'/0'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'

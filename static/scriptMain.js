@@ -609,7 +609,6 @@ function addNote(Y, M, D) {
                         <input type="button" value="BACK" id="input-back-popup">
                     </div>
                 </div>`
-    console.log('addddddddddddddddddddddddd')
     let popup = document.createElement('div')
     popup.setAttribute('id', 'con-popup-id')
     popup.setAttribute('class', 'con-popup')
