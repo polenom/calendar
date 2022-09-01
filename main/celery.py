@@ -13,7 +13,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule= {
     'send_notes_time_left': {
         'task': 'almanac.tasks.send_notes_left',
-        'schedule': 10.0,
+        'schedule': crontab(minute='*/1'),
     }
 }
 

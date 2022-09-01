@@ -6,11 +6,18 @@ from .service import send
 
 @app.task
 def send_notes_left():
-    print(MarketDay.objects.filter(startdate__range=(datetime.now(timezone.utc)+timedelta(minutes=180),datetime.now(timezone.utc)+timedelta(minutes=190))),111111111111111)
-    for i in MarketDay.objects.filter(startdate__range=(datetime.now(timezone.utc)+timedelta(minutes=180),datetime.now(timezone.utc)+timedelta(minutes=190))):
+    now = datetime.now(timezone.utc)
+    for i in MarketDay.objects.filter(startdate__range=(now + timedelta(minutes=195), now + timedelta(minutes=197))):
         email = i.user.email
-        print(i.title, email)
         if email:
             send(email, f'{i.user.username}, 15 minut left ',  i.title)
+    for i in MarketDay.objects.filter(startdate__range=(now + timedelta(hours=7), now + timedelta(hours=7, minutes=2))):
+        email = i.user.email
+        if email:
+            send(email, f'{i.user.username}, 40 hours left ',  i.title)
+    for i in MarketDay.objects.filter(startdate__range=(now + timedelta(days=1, hours=3), now + timedelta(days=1, hours=3, minutes=2))):
 
+        email = i.user.email
+        if email:
+            send(email, f'{i.user.username}, 1 day left ',  i.title)
 
